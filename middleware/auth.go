@@ -1,23 +1,26 @@
-package web
+package middleware
 
 import (
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
-func CookieAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		sc := c.(*SubmarineContext)
-		sc.SessionID = getCookieSessionID(sc)
+func CookieAuthMiddleware(db *gorm.DB) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			sc := c.(*SubmarineContext)
+			sc.SessionID = getCookieSessionID(sc)
 
-		err := next(sc)
-		if err != nil {
-			c.Error(err)
+			err := next(sc)
+			if err != nil {
+				c.Error(err)
+			}
+
+			return nil
 		}
-
-		return nil
 	}
 }
 

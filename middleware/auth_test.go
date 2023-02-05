@@ -1,4 +1,4 @@
-package web_test
+package middleware_test
 
 import (
 	"bytes"
@@ -6,12 +6,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/chdorner/submarine/web"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
+
+	"github.com/chdorner/submarine/middleware"
+	"github.com/chdorner/submarine/test"
 )
 
 func TestCookieAuthMiddleware(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", bytes.NewReader(nil))
 	req.AddCookie(&http.Cookie{
@@ -19,16 +24,16 @@ func TestCookieAuthMiddleware(t *testing.T) {
 		Value: "the-session-id",
 	})
 	rec := httptest.NewRecorder()
-	sc := web.InitSubmarineContext(e.NewContext(req, rec))
+	sc := middleware.InitSubmarineContext(e.NewContext(req, rec))
 
 	var actual string
 	handler := func(c echo.Context) error {
-		sc := c.(*web.SubmarineContext)
+		sc := c.(*middleware.SubmarineContext)
 		actual = sc.SessionID
 		return c.String(http.StatusOK, "OK")
 	}
 
-	err := web.CookieAuthMiddleware(handler)(sc)
+	err := middleware.CookieAuthMiddleware(db)(handler)(sc)
 	require.NoError(t, err)
 	require.Equal(t, "the-session-id", actual)
 }
@@ -40,7 +45,7 @@ func TestSetCookieSessionID(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	handler := func(c echo.Context) error {
-		web.SetCookieSessionID(c, "the-session-id")
+		middleware.SetCookieSessionID(c, "the-session-id")
 		return c.String(http.StatusOK, "Successfully logged-in")
 	}
 

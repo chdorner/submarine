@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/chdorner/submarine/data"
-	"github.com/chdorner/submarine/web"
+	"github.com/chdorner/submarine/router"
 )
 
 func NewServeCmd() *cobra.Command {
@@ -31,7 +31,7 @@ func NewServeCmd() *cobra.Command {
 				return errors.New("submarine is not initialized yet, run `submarine init` first")
 			}
 
-			e := web.NewRouter()
+			e := router.New(db)
 			logrus.WithField("addr", addr).Info("starting submarine")
 			return e.Start(addr)
 		},
