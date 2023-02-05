@@ -3,6 +3,7 @@ module github.com/chdorner/submarine
 go 1.19
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1

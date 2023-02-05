@@ -11,7 +11,10 @@ func Connect(path string) (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) {
-	err := db.AutoMigrate(&Settings{})
+	err := db.AutoMigrate(
+		&Session{},
+		&Settings{},
+	)
 	if err != nil {
 		panic(err)
 	}
