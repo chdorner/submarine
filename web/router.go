@@ -8,6 +8,7 @@ import (
 
 type SubmarineContext struct {
 	echo.Context
+	SessionID string
 }
 
 func NewRouter() *echo.Echo {
@@ -40,16 +41,20 @@ func NewRouter() *echo.Echo {
 		},
 	}))
 	e.Use(middleware.Recover())
+	e.Use(CookieAuthMiddleware)
 
 	return e
 }
 
 func SubmarineContextMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sc := &SubmarineContext{
-			c,
-			"", // sessionID
-		}
-		return next(sc)
+		return next(InitSubmarineContext(c))
+	}
+}
+
+func InitSubmarineContext(c echo.Context) *SubmarineContext {
+	return &SubmarineContext{
+		c,
+		"", // SessionID
 	}
 }
