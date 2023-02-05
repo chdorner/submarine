@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -32,14 +31,14 @@ func NewServeCmd() *cobra.Command {
 				return errors.New("submarine is not initialized yet, run `submarine init` first")
 			}
 
-			mux := web.NewRouter()
+			e := web.NewRouter()
 			logrus.WithField("addr", addr).Info("starting submarine")
-			return http.ListenAndServe(addr, mux)
+			return e.Start(addr)
 		},
 	}
 
 	fl := cmd.Flags()
-	fl.StringP("addr", "a", "127.0.0.1:8080", "listen address")
+	fl.StringP("addr", "a", "127.0.0.1:9876", "listen address")
 
 	return cmd
 }

@@ -2,8 +2,12 @@ package web
 
 import (
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-func RootHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello from submarine")) //nolint:errcheck
+func root(c echo.Context) error {
+	sc := c.(*SubmarineContext)
+
+	return sc.String(http.StatusOK, "Hello from submarine")
 }

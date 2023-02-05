@@ -24,3 +24,8 @@ install-tools: # Install development tools
 .PHONY: lint
 lint: # Lint source code
 	golangci-lint run
+
+.POHNY: serve
+serve: # Build and serve submarine
+	go build .
+	./submarine serve
