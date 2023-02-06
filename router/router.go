@@ -22,6 +22,12 @@ func New(db *gorm.DB) *echo.Echo {
 	e.GET("/", handler.RootHandler)
 	e.GET("/login", handler.LoginViewHandler)
 
+	staticHandler, err := handler.NewStaticHandler()
+	if err != nil {
+		panic(err)
+	}
+	e.GET("/static/*", staticHandler)
+
 	// Middleware
 	e.Use(middleware.SubmarineContextMiddleware)
 	log := logrus.New()
