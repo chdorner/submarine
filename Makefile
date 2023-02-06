@@ -20,6 +20,7 @@ coverage: # Run tests and open coverage report
 install-tools: # Install development tools
 	brew install goreleaser/tap/goreleaser
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.1
+	go install github.com/cosmtrek/air@latest
 
 .PHONY: lint
 lint: # Lint source code
@@ -27,5 +28,4 @@ lint: # Lint source code
 
 .POHNY: serve
 serve: # Build and serve submarine
-	go build .
-	./submarine serve
+	air -- serve
