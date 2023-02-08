@@ -12,7 +12,7 @@ func RootHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
 
 	name := "stranger"
-	if sc.IsAuthenticated {
+	if sc.IsAuthenticated() {
 		name = "friend"
 	}
 

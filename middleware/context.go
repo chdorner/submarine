@@ -7,9 +7,7 @@ import (
 
 type SubmarineContext struct {
 	echo.Context
-	DB              *gorm.DB
-	IsAuthenticated bool
-	SessionID       uint
+	DB *gorm.DB
 }
 
 func SubmarineContextMiddleware(db *gorm.DB) echo.MiddlewareFunc {
@@ -23,8 +21,14 @@ func SubmarineContextMiddleware(db *gorm.DB) echo.MiddlewareFunc {
 func InitSubmarineContext(c echo.Context, db *gorm.DB) *SubmarineContext {
 	return &SubmarineContext{
 		c,
-		db,    // DB
-		false, // IsAuthenticated
-		0,     // SessionID
+		db, // DB
 	}
+}
+
+func (sc *SubmarineContext) IsAuthenticated() bool {
+	isAuthenticated := sc.Get("IsAuthenticated")
+	if isAuthenticated == nil {
+		return false
+	}
+	return isAuthenticated.(bool)
 }

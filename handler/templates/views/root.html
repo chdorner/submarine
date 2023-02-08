@@ -3,7 +3,10 @@
     Hello from submarine, {{ .name }}.
 </p>
 <p>
-    <a href="/login">Login</a>
+    {{ if .IsAuthenticated }}
     <a href="/logout">Logout</a>
+    {{ else }}
+    <a href="/login">Login</a>
+    {{ end }}
 </p>
 {{ end }}

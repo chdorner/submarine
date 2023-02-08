@@ -38,7 +38,11 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 	if !ok {
 		panic(fmt.Sprintf("template %s does not exists", name))
 	}
-	return tpl.ExecuteTemplate(w, "base", data)
+
+	dataMap := data.(map[string]interface{})
+	dataMap["IsAuthenticated"] = c.Get("IsAuthenticated")
+
+	return tpl.ExecuteTemplate(w, "base", dataMap)
 }
 
 func (t *Templates) Parse(views, common fs.ReadDirFS) error {

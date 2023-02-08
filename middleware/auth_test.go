@@ -36,8 +36,8 @@ func TestCookieAuthMiddleware(t *testing.T) {
 	var actualAuthenticated bool
 	handler := func(c echo.Context) error {
 		sc := c.(*middleware.SubmarineContext)
-		actualID = sc.SessionID
-		actualAuthenticated = sc.IsAuthenticated
+		actualID = sc.Get("SessionID").(uint)
+		actualAuthenticated = sc.IsAuthenticated()
 		return c.String(http.StatusOK, "OK")
 	}
 
