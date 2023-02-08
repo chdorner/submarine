@@ -50,7 +50,13 @@ func NewBaseApp(db *gorm.DB) *echo.Echo {
 
 func New(db *gorm.DB) *echo.Echo {
 	e := NewBaseApp(db)
-	e.GET("/", handler.RootHandler)
+
+	e.GET("/", handler.BookmarksListHandler)
+
+	e.GET("/tags", handler.TagsListHandler)
+
+	e.GET("/settings", handler.SettingsHandler)
+
 	e.GET("/login", handler.LoginViewHandler)
 	e.POST("/login", handler.LoginHandler)
 	e.GET("/logout", handler.LogoutHandler)

@@ -7,9 +7,53 @@
         <link rel="stylesheet" href="/static/bulma.min.css">
         <link rel="stylesheet" href="/static/fontawesome.min.css">
         <link rel="stylesheet" href="/static/fa-solid.min.css">
+        <link rel="icon" href="/static/logo.png" />
+        <script type="text/javascript" src="/static/submarine.js"></script>
     </head>
     <body>
         <div class="container">
+            <nav class="navbar is-transparent" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="/">
+                        <img src="/static/logo.png" width="28" height="28">
+                    </a>
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                      </a>
+                </div>
+                <div id="navbarMain" class="navbar-menu">
+                    <div class="navbar-start">
+                        <a href="/" class="navbar-item">
+                            Bookmarks
+                        </a>
+
+                        <a href="/tags" class="navbar-item">
+                            Tags
+                        </a>
+
+                        {{ if .IsAuthenticated }}
+                        <a href="/settings" class="navbar-item">
+                            Settings
+                        </a>
+                        {{ end }}
+                    </div>
+                    <div class="navbar-end">
+                        <div class="navbar-item">
+                            {{ if .IsAuthenticated }}
+                            <a href="/logout" class="button is-light">
+                                Logout
+                            </a>
+                            {{ else }}
+                            <a href="/login" class="button is-primary">
+                                Login
+                            </a>
+                            {{ end }}
+                        </div>
+                    </div>
+                </div>
+            </nav>
             {{ template "content" . }}
         </div>
     </body>
