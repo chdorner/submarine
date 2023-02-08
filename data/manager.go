@@ -14,6 +14,7 @@ func Migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&Session{},
 		&Settings{},
+		&Bookmark{},
 	)
 	if err != nil {
 		panic(err)
