@@ -23,7 +23,7 @@ func TestIsInitialized(t *testing.T) {
 	require.True(t, repo.IsInitialized())
 }
 
-func TestGet(t *testing.T) {
+func TestSettingsRepositoryGet(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()
 	repo := data.NewSettingsRepository(db)
@@ -41,7 +41,7 @@ func TestGet(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestUpsert(t *testing.T) {
+func TestSettingsRepositoryUpsert(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()
 	repo := data.NewSettingsRepository(db)

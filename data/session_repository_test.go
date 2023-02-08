@@ -10,7 +10,7 @@ import (
 	"github.com/chdorner/submarine/test"
 )
 
-func TestGetByToken(t *testing.T) {
+func TestSessionRepositoryGetByToken(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()
 	repo := data.NewSessionRepository(db)
@@ -37,7 +37,7 @@ func TestGetByToken(t *testing.T) {
 	require.Equal(t, "test-ip", session.IP)
 }
 
-func TestCreate(t *testing.T) {
+func TestSessionRepositoryCreate(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()
 	repo := data.NewSessionRepository(db)
