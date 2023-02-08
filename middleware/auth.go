@@ -4,28 +4,35 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/chdorner/submarine/data"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
-func CookieAuthMiddleware(db *gorm.DB) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			sc := c.(*SubmarineContext)
-			sc.SessionID = getCookieSessionID(sc)
+func CookieAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		sc := c.(*SubmarineContext)
 
-			err := next(sc)
-			if err != nil {
-				c.Error(err)
+		token := getCookieSessionToken(sc)
+		if token != "" {
+			repo := data.NewSessionRepository(sc.DB)
+			session, err := repo.GetByToken(token)
+			if err == nil {
+				sc.SessionID = session.ID
+				sc.IsAuthenticated = true
 			}
-
-			return nil
 		}
+
+		err := next(sc)
+		if err != nil {
+			c.Error(err)
+		}
+
+		return nil
 	}
 }
 
-func getCookieSessionID(c echo.Context) string {
-	cookie, err := c.Cookie("SubmarineSessionID")
+func getCookieSessionToken(c echo.Context) string {
+	cookie, err := c.Cookie("SubmarineSessionToken")
 	if err != nil {
 		return ""
 	}
@@ -33,14 +40,26 @@ func getCookieSessionID(c echo.Context) string {
 	return cookie.Value
 }
 
-func SetCookieSessionID(c echo.Context, sessionID string) {
-	cookie := &http.Cookie{
-		Name:     "SubmarineSessionID",
-		Value:    sessionID,
-		SameSite: http.SameSiteStrictMode,
-		// TODO: enable secure cookie when using HTTPS
-		//Secure: true,
+func SetCookieSessionToken(c echo.Context, token string) {
+	setCookie(c, &http.Cookie{
+		Name:    "SubmarineSessionToken",
+		Value:   token,
 		Expires: time.Now().Add(14 * 24 * time.Hour),
-	}
+	})
+}
+
+func ClearCookieSessionToken(c echo.Context) {
+	setCookie(c, &http.Cookie{
+		Name:    "SubmarineSessionToken",
+		Value:   "",
+		Expires: time.Now().Add(-time.Second),
+	})
+}
+
+func setCookie(c echo.Context, cookie *http.Cookie) {
+	cookie.SameSite = http.SameSiteStrictMode
+	// TODO: enable secure cookie when using HTTPS
+	// cookie.Secure = true
+
 	c.SetCookie(cookie)
 }

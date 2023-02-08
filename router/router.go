@@ -12,24 +12,15 @@ import (
 	"github.com/chdorner/submarine/middleware"
 )
 
-func New(db *gorm.DB) *echo.Echo {
+func NewBaseApp(db *gorm.DB) *echo.Echo {
 	e := echo.New()
 	e.Pre(echomiddleware.RemoveTrailingSlashWithConfig(echomiddleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
 	e.Renderer = handler.NewTemplates()
 
-	e.GET("/", handler.RootHandler)
-	e.GET("/login", handler.LoginViewHandler)
-
-	staticHandler, err := handler.NewStaticHandler()
-	if err != nil {
-		panic(err)
-	}
-	e.GET("/static/*", staticHandler)
-
-	// Middleware
-	e.Use(middleware.SubmarineContextMiddleware)
+	e.Use(echomiddleware.Recover())
+	e.Use(middleware.SubmarineContextMiddleware(db))
 	log := logrus.New()
 	e.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
 		LogURI:      true,
@@ -52,8 +43,23 @@ func New(db *gorm.DB) *echo.Echo {
 			return nil
 		},
 	}))
-	e.Use(echomiddleware.Recover())
-	e.Use(middleware.CookieAuthMiddleware(db))
+	e.Use(middleware.CookieAuthMiddleware)
+
+	return e
+}
+
+func New(db *gorm.DB) *echo.Echo {
+	e := NewBaseApp(db)
+	e.GET("/", handler.RootHandler)
+	e.GET("/login", handler.LoginViewHandler)
+	e.POST("/login", handler.LoginHandler)
+	e.GET("/logout", handler.LogoutHandler)
+
+	staticHandler, err := handler.NewStaticHandler()
+	if err != nil {
+		panic(err)
+	}
+	e.GET("/static/*", staticHandler)
 
 	return e
 }
