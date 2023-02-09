@@ -1,5 +1,16 @@
 {{ define "content" }}
-<p>
-    Settings
-</p>
+<div class="columns is-centered">
+    <div class="column is-two-thirds content">
+        <h1>Settings</h1>
+
+        <h2>Bookmarklet</h2>
+        <p>
+            For easier bookmark creation, drag the bookmarklet button into your browser's bookmark toolbar.<br />
+            When you are on a website you want to bookmark, click the bookmarklet in the toolbar.
+        </p>
+        <p>
+            <a class="button is-info is-light" href="javascript:(function(){var bookmarkUrl=window.location;var bookmarkTitle=document.title;var bookmarkDescription=document.querySelector(`meta[name='description']`)?.content||'';var applicationUrl='{{ .scheme }}://{{ .host }}/bookmarks/new';applicationUrl+='?url='+encodeURIComponent(bookmarkUrl);applicationUrl+='&title='+encodeURIComponent(bookmarkTitle);applicationUrl+='&description='+encodeURIComponent(bookmarkDescription);window.open(applicationUrl);})();" name="Bookmark on submarine">Bookmark on submarine</a>
+        </p>
+    </div>
+</div>
 {{ end }}

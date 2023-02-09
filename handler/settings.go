@@ -9,5 +9,9 @@ import (
 
 func SettingsHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
-	return sc.Render(http.StatusOK, "settings.html", map[string]interface{}{})
+
+	return sc.Render(http.StatusOK, "settings.html", map[string]interface{}{
+		"scheme": c.Scheme(),
+		"host":   c.Request().Host,
+	})
 }

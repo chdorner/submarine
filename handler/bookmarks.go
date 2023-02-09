@@ -43,7 +43,13 @@ func BookmarksListHandler(c echo.Context) error {
 func BookmarksNewHandler(c echo.Context) error {
 	// TODO: require authentication
 	sc := c.(*middleware.SubmarineContext)
-	return sc.Render(http.StatusOK, "bookmarks_new.html", nil)
+	return sc.Render(http.StatusOK, "bookmarks_new.html", map[string]interface{}{
+		"bookmark": data.BookmarkCreate{
+			URL:         c.QueryParam("url"),
+			Title:       c.QueryParam("title"),
+			Description: c.QueryParam("desc"),
+		},
+	})
 }
 
 func BookmarksCreateHandler(c echo.Context) error {
