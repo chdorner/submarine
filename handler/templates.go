@@ -39,7 +39,11 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 		panic(fmt.Sprintf("template %s does not exists", name))
 	}
 
-	dataMap := data.(map[string]interface{})
+	dataMap := map[string]interface{}{}
+	if data != nil {
+		dataMap = data.(map[string]interface{})
+	}
+
 	dataMap["IsAuthenticated"] = c.Get("IsAuthenticated")
 
 	return tpl.ExecuteTemplate(w, "base", dataMap)

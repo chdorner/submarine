@@ -41,15 +41,20 @@
                     </div>
                     <div class="navbar-end">
                         <div class="navbar-item">
-                            {{ if .IsAuthenticated }}
-                            <a href="/logout" class="button is-light">
-                                Logout
-                            </a>
-                            {{ else }}
-                            <a href="/login" class="button is-primary">
-                                Login
-                            </a>
-                            {{ end }}
+                            <div class="buttons">
+                                {{ if .IsAuthenticated }}
+                                <a href="/bookmarks/new" class="button is-primary">
+                                    Add Bookmark
+                                </a>
+                                <a href="/logout" class="button is-light">
+                                    Logout
+                                </a>
+                                {{ else }}
+                                <a href="/login" class="button is-primary">
+                                    Login
+                                </a>
+                                {{ end }}
+                            </div>
                         </div>
                     </div>
                 </div>

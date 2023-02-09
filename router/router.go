@@ -52,6 +52,8 @@ func New(db *gorm.DB) *echo.Echo {
 	e := NewBaseApp(db)
 
 	e.GET("/", handler.BookmarksListHandler)
+	e.GET("/bookmarks/new", handler.BookmarksNewHandler)
+	e.POST("/bookmarks", handler.BookmarksCreateHandler)
 
 	e.GET("/tags", handler.TagsListHandler)
 
