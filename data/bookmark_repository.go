@@ -12,9 +12,9 @@ func NewBookmarkRepository(db *gorm.DB) *BookmarkRepository {
 
 func (r *BookmarkRepository) Create(req BookmarkCreate) (*Bookmark, error) {
 	bookmark := &Bookmark{
-		URL:        req.URL,
-		Title:      req.Title,
-		Descripton: req.Description,
+		URL:         req.URL,
+		Title:       req.Title,
+		Description: req.Description,
 	}
 
 	result := r.db.Create(bookmark)

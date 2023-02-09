@@ -8,9 +8,9 @@ import (
 
 type Bookmark struct {
 	gorm.Model
-	URL        string `gorm:"not null;default:null"`
-	Title      string
-	Descripton string
+	URL         string `gorm:"not null;default:null"`
+	Title       string
+	Description string
 }
 
 type BookmarkCreate struct {

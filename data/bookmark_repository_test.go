@@ -22,7 +22,7 @@ func TestBookmarkRepositoryCreate(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, req.URL, bookmark.URL)
 	require.Equal(t, req.Title, bookmark.Title)
-	require.Equal(t, req.Description, bookmark.Descripton)
+	require.Equal(t, req.Description, bookmark.Description)
 
 	// minimum required fields
 	_, err = repo.Create(data.BookmarkCreate{
