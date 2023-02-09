@@ -30,6 +30,7 @@ func init() {
 
 	rootCmd.AddCommand(NewServeCmd())
 	rootCmd.AddCommand(NewInitCmd())
+	rootCmd.AddCommand(NewVersionCommand())
 }
 
 func createContext(flags *pflag.FlagSet) context.Context {

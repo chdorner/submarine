@@ -4,7 +4,7 @@ help: # Show help for each of the Makefile recipes.
 
 .PHONY: build
 build: # Build submarine
-	go build ./...
+	go build .
 
 .PHONY: test
 test: # Test submarine
