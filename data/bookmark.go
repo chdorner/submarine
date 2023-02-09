@@ -6,11 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
+type BookmarkPrivacy string
+
+const (
+	BookmarkPrivacyPublic   BookmarkPrivacy = "public"
+	BookmarkPrivacyPrivate  BookmarkPrivacy = "private"
+	BookmarkPrivacyQueryAll BookmarkPrivacy = "all"
+)
+
 type Bookmark struct {
 	gorm.Model
 	URL         string `gorm:"not null;default:null"`
 	Title       string
 	Description string
+	Privacy     BookmarkPrivacy `gorm:"default:'private'"`
 }
 
 type BookmarkCreate struct {
