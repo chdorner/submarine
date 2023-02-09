@@ -52,6 +52,12 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 func (t *Templates) Parse(views, common fs.ReadDirFS) error {
 	t.Registry = make(map[string]*template.Template)
 
+	funcMap := template.FuncMap{
+		"StaticAssetPath": func(name string) template.HTML {
+			return template.HTML(StaticAssetPath(name))
+		},
+	}
+
 	var commonContents strings.Builder
 	entries, err := common.ReadDir(path.Join("templates", "common"))
 	if err != nil {
@@ -79,7 +85,7 @@ func (t *Templates) Parse(views, common fs.ReadDirFS) error {
 		templateContents.WriteString(commonContents.String())
 		templateContents.Write(data)
 
-		t.Registry[entry.Name()] = template.Must(template.New("main").Parse(templateContents.String()))
+		t.Registry[entry.Name()] = template.Must(template.New("main").Funcs(funcMap).Parse(templateContents.String()))
 	}
 
 	return nil

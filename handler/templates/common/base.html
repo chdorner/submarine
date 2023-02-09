@@ -4,19 +4,19 @@
     <head>
         <title>Submarine</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/static/bulma.min.css">
-        <link rel="stylesheet" href="/static/fontawesome.min.css">
-        <link rel="stylesheet" href="/static/fa-solid.min.css">
-        <link rel="stylesheet" href="/static/submarine.css">
-        <link rel="icon" href="/static/logo.png" />
-        <script type="text/javascript" src="/static/submarine.js"></script>
+        <link rel="stylesheet" href="{{ StaticAssetPath "bulma.min.css" }}">
+        <link rel="stylesheet" href="{{ StaticAssetPath "fontawesome.min.css" }}">
+        <link rel="stylesheet" href="{{ StaticAssetPath "fa-solid.min.css" }}">
+        <link rel="stylesheet" href="{{ StaticAssetPath "submarine.css" }}">
+        <link rel="icon" href="{{ StaticAssetPath "logo.png" }}" />
+        <script type="text/javascript" src="{{ StaticAssetPath "submarine.js" }}"></script>
     </head>
     <body>
         <div class="container">
             <nav class="navbar is-transparent" role="navigation" aria-label="main navigation">
                 <div class="navbar-brand">
                     <a class="navbar-item" href="/">
-                        <img src="/static/logo.png" width="28" height="28">
+                        <img src="{{ StaticAssetPath "logo.png" }}" width="28" height="28">
                     </a>
                     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
                         <span aria-hidden="true"></span>
