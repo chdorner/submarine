@@ -1,5 +1,46 @@
 {{ define "content"}}
-<p>
-    Bookmarks List
-</p>
+<div class="columns is-centered">
+    {{ if .error }}
+    <div class="column is-half">
+        <div class="notification is-danger">
+            {{ .error }}
+        </div>
+    </div>
+    {{ else if not .result.Items }}
+    <div class="column is-half">
+        <div class="notification is-warning">
+            No bookmarks yet!
+        </div>
+    </div>
+    {{ else }}
+    <div class="column is-two-thirds">
+        {{ range $bookmark := .result.Items }}
+        <div class="bookmark card">
+            <header class="card-header">
+                <p class="card-header-title">
+                    <a href="{{ $bookmark.URL }}" rel="noreferrer noopener" target="_blank">
+                        {{ $bookmark.Title }}
+                    </a>
+                </p>
+            </header>
+            {{ if $bookmark.Description }}
+            <div class="card-content">
+                <p>{{ $bookmark.Description }}</p>
+            </div>
+            {{ end }}
+            {{ if $.IsAuthenticated }}
+            <footer class="card-footer">
+                <a href="" class="card-footer-item">Edit</a>
+                <a href="" class="card-footer-item">Delete</a>
+            </footer>
+            {{ end }}
+        </div>
+        {{ end }}
+        <nav class="pagination is-centered" role="navigation" aria-label="navigation">
+            <a class="button pagination-previous" href="{{ if .result.HasPrev }}/?offset={{ .result.PrevOffset }}{{ else }}#{{ end }}" {{ if not .result.HasPrev }}disabled{{ end }}>Previous</a>
+            <a class="button pagination-next" href="{{ if .result.HasNext }}/?offset={{ .result.NextOffset }}{{ else }}#{{ end }}" {{ if not .result.HasNext }}disabled{{ end }}>Next Page</a>
+        </nav>
+    </div>
+    {{ end }}
+</div>
 {{ end }}

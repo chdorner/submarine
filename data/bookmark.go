@@ -26,6 +26,22 @@ type BookmarkCreate struct {
 	URL         string
 	Title       string
 	Description string
+	Privacy     BookmarkPrivacy
+}
+
+type BookmarkListRequest struct {
+	Privacy BookmarkPrivacy
+	Offset  int
+	Order   string
+}
+
+type BookmarkListResult struct {
+	Items      []Bookmark
+	Count      int64
+	HasPrev    bool
+	PrevOffset int
+	HasNext    bool
+	NextOffset int
 }
 
 func (req *BookmarkCreate) IsValid() *ValidationError {
