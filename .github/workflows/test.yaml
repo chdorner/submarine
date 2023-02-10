@@ -38,12 +38,17 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Setup Code Climate test-reporter
+        if: "github.ref == 'refs/heads/main'"
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /usr/local/bin/cc-test-reporter
           chmod +x /usr/local/bin/cc-test-reporter
       - name: Build
         run: make build
       - name: Test
+        if: "github.ref != 'refs/heads/main'"
+        run: go test -cover ./...
+      - name: Test
+        if: "github.ref == 'refs/heads/main'"
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
