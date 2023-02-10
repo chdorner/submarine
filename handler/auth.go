@@ -2,7 +2,9 @@ package handler
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"net/http"
+	"net/url"
 
 	"github.com/chdorner/submarine/data"
 	"github.com/chdorner/submarine/middleware"
@@ -13,14 +15,20 @@ import (
 func LoginViewHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
 
-	return sc.Render(http.StatusOK, "login.html", map[string]interface{}{})
+	next, _ := url.QueryUnescape(sc.QueryParam("next"))
+
+	return sc.Render(http.StatusOK, "login.html", map[string]interface{}{
+		"next": next,
+	})
 }
 
 func LoginHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
 
+	next := sc.FormValue("next")
 	genericError := map[string]interface{}{
 		"error": "Login failed!",
+		"next":  next,
 	}
 
 	settingsRepo := data.NewSettingsRepository(sc.DB)
@@ -41,9 +49,17 @@ func LoginHandler(c echo.Context) error {
 	if err != nil {
 		return sc.Render(http.StatusOK, "login.html", map[string]interface{}{
 			"error": "Failed to create session!",
+			"next":  next,
 		})
 	}
 	middleware.SetCookieSessionToken(sc, session.Token)
+
+	if next != "" {
+		next, err := base64.StdEncoding.DecodeString(next)
+		if err == nil {
+			return sc.Redirect(http.StatusFound, string(next))
+		}
+	}
 
 	return sc.Redirect(http.StatusFound, "/")
 }

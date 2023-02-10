@@ -1,6 +1,10 @@
 package middleware
 
 import (
+	"encoding/base64"
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -31,4 +35,18 @@ func (sc *SubmarineContext) IsAuthenticated() bool {
 		return false
 	}
 	return isAuthenticated.(bool)
+}
+
+func (sc *SubmarineContext) RedirectToLogin() error {
+	redirect := "/login"
+	if sc.Request().Method == http.MethodGet {
+		next := sc.Path()
+		query := sc.QueryString()
+		if query != "" {
+			next = fmt.Sprintf("%s?%s", next, query)
+		}
+		nextEncoded := base64.StdEncoding.EncodeToString([]byte(next))
+		redirect = fmt.Sprintf("%s?next=%s", redirect, nextEncoded)
+	}
+	return sc.Redirect(http.StatusFound, redirect)
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/chdorner/submarine/data"
 	"github.com/chdorner/submarine/handler"
-	"github.com/chdorner/submarine/middleware"
 	"github.com/chdorner/submarine/router"
 	"github.com/chdorner/submarine/test"
 	"github.com/google/uuid"
@@ -26,7 +25,7 @@ func TestLoginHandler(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/login", form)
 	req.Header.Set("Content-Type", contentType)
 	rec := httptest.NewRecorder()
-	sc := middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc := test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
 
 	// no site settings available
 	err := handler.LoginHandler(sc)
@@ -44,7 +43,7 @@ func TestLoginHandler(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPost, "/login", form)
 	req.Header.Set("Content-Type", contentType)
 	rec = httptest.NewRecorder()
-	sc = middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc = test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
 	err = handler.LoginHandler(sc)
 	require.NoError(t, err)
 	require.Contains(t, rec.Body.String(), "Login failed!")
@@ -54,7 +53,7 @@ func TestLoginHandler(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPost, "/login", form)
 	req.Header.Set("Content-Type", contentType)
 	rec = httptest.NewRecorder()
-	sc = middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc = test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
 	err = handler.LoginHandler(sc)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
@@ -67,7 +66,7 @@ func TestLogoutHandler(t *testing.T) {
 	e := router.NewBaseApp(nil)
 	req := httptest.NewRequest(http.MethodGet, "/logout", strings.NewReader(""))
 	rec := httptest.NewRecorder()
-	sc := middleware.InitSubmarineContext(e.NewContext(req, rec), nil)
+	sc := test.NewAuthenticatedContext(e.NewContext(req, rec), nil)
 	err := handler.LogoutHandler(sc)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusFound, rec.Result().StatusCode)

@@ -9,6 +9,9 @@ import (
 
 func SettingsHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
+	if !sc.IsAuthenticated() {
+		return sc.RedirectToLogin()
+	}
 
 	return sc.Render(http.StatusOK, "settings.html", map[string]interface{}{
 		"scheme": c.Scheme(),

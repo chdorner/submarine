@@ -10,11 +10,22 @@ import (
 
 	"github.com/chdorner/submarine/data"
 	"github.com/chdorner/submarine/handler"
-	"github.com/chdorner/submarine/middleware"
 	"github.com/chdorner/submarine/router"
 	"github.com/chdorner/submarine/test"
 	"github.com/stretchr/testify/require"
 )
+
+func TestBookmarksNewHandler(t *testing.T) {
+	// unauthenticated
+	e := router.NewBaseApp(nil)
+	req := httptest.NewRequest(http.MethodGet, "/login", strings.NewReader(""))
+	rec := httptest.NewRecorder()
+	sc := test.NewUnauthenticatedContext(e.NewContext(req, rec), nil)
+	err := handler.BookmarksNewHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.True(t, strings.HasPrefix(rec.Result().Header.Get("Location"), "/login?next="))
+}
 
 func TestBookmarksCreateHandler(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
@@ -33,7 +44,7 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", contentType)
 	rec := httptest.NewRecorder()
-	sc := middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc := test.NewAuthenticatedContext(e.NewContext(req, rec), db)
 
 	err := handler.BookmarksCreateHandler(sc)
 	require.NoError(t, err)
@@ -52,7 +63,7 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", contentType)
 	rec = httptest.NewRecorder()
-	sc = middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
 
 	err = handler.BookmarksCreateHandler(sc)
 	require.NoError(t, err)
@@ -60,7 +71,17 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	require.Contains(t, rec.Body.String(), "Failed to create bookmark")
 	require.Contains(t, rec.Body.String(), "URL is required")
 
-	// TODO: test unauthenticated access
+	// unauthenticated
+	form = url.Values{}
+	form.Add("url", "https://example.com/about")
+	req = httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
+	err = handler.BookmarksCreateHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.True(t, strings.HasPrefix(rec.Result().Header.Get("Location"), "/login"))
 }
 
 func TestBookmarksListHandler(t *testing.T) {
@@ -96,7 +117,7 @@ func TestBookmarksListHandler(t *testing.T) {
 	// queries public bookmarks when logged out
 	req := httptest.NewRequest(http.MethodGet, "/", strings.NewReader(""))
 	rec := httptest.NewRecorder()
-	sc := middleware.InitSubmarineContext(e.NewContext(req, rec), db)
+	sc := test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
 
 	err := handler.BookmarksListHandler(sc)
 	require.NoError(t, err)
@@ -110,8 +131,7 @@ func TestBookmarksListHandler(t *testing.T) {
 	// queries all bookmarks when logged in
 	req = httptest.NewRequest(http.MethodGet, "/", strings.NewReader(""))
 	rec = httptest.NewRecorder()
-	sc = middleware.InitSubmarineContext(e.NewContext(req, rec), db)
-	sc.Set("IsAuthenticated", true)
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
 
 	err = handler.BookmarksListHandler(sc)
 	require.NoError(t, err)

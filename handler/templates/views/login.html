@@ -2,6 +2,7 @@
 <div class="columns is-centered">
     <div class="column is-3">
         <form action="/login" method="post" class="box">
+            <input type="hidden" name="next" value="{{ .next }}">
             {{ if .error }}
             <div class="notification is-danger">
                 {{ .error }}
