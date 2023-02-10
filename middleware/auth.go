@@ -57,7 +57,7 @@ func ClearCookieSessionToken(c echo.Context) {
 }
 
 func setCookie(c echo.Context, cookie *http.Cookie) {
-	cookie.SameSite = http.SameSiteStrictMode
+	cookie.SameSite = http.SameSiteLaxMode
 	cookie.Secure = c.Scheme() == "https"
 	c.SetCookie(cookie)
 }
