@@ -41,6 +41,7 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	form.Add("title", "Example - About")
 	form.Add("description", "About example.com")
 	form.Add("public", "on")
+	form.Add("tags", "articles, toRead")
 
 	req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", contentType)
@@ -51,13 +52,15 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	var bookmark data.Bookmark
-	result := db.Last(&bookmark)
+	result := db.Preload("Tags").Last(&bookmark)
 	require.NoError(t, result.Error)
 	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
 	require.Equal(t, fmt.Sprintf("/bookmarks/%d", bookmark.ID), rec.Header().Get("Location"))
 
 	require.Equal(t, form.Get("url"), bookmark.URL)
 	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
+	require.Equal(t, "articles", bookmark.Tags[0].Name)
+	require.Equal(t, "toRead", bookmark.Tags[1].Name)
 
 	// private bookmark (missing public in form values)
 	form = url.Values{}

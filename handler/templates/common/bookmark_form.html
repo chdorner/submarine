@@ -31,6 +31,13 @@
     </div>
 
     <div class="field">
+        <label class="label">Tags</label>
+        <div class="control">
+            <input class="input" type="text" name="tags" placeholder="toRead, articles" value="{{ .bookmark.Tags }}">
+        </div>
+    </div>
+
+    <div class="field">
         <label class="label">
             <input type="checkbox" name="public"{{ if .bookmark.Public }} checked{{ end }}>
             Is Public

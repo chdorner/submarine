@@ -220,6 +220,7 @@ func parseAndValidateForm(sc *middleware.SubmarineContext) (*data.BookmarkForm, 
 		Title:       sc.FormValue("title"),
 		Description: sc.FormValue("description"),
 		Public:      public,
+		Tags:        sc.FormValue("tags"),
 	}
 	validationErr := req.IsValid()
 	if validationErr != nil {
