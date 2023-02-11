@@ -63,10 +63,15 @@ func BookmarksCreateHandler(c echo.Context) error {
 
 	repo := data.NewBookmarkRepository(sc.DB)
 
+	privacy := data.BookmarkPrivacyPrivate
+	if sc.FormValue("public") == "on" {
+		privacy = data.BookmarkPrivacyPublic
+	}
 	req := data.BookmarkCreate{
 		URL:         sc.FormValue("url"),
 		Title:       sc.FormValue("title"),
 		Description: sc.FormValue("description"),
+		Privacy:     privacy,
 	}
 	validationErr := req.IsValid()
 	if validationErr != nil {

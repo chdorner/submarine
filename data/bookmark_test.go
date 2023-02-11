@@ -13,11 +13,13 @@ func TestBookmarkCreateIsValid(t *testing.T) {
 	err := req.IsValid()
 	require.Nil(t, err)
 
+	// empty URL
 	req = data.BookmarkCreate{URL: ""}
 	err = req.IsValid()
 	require.Error(t, err)
 	require.Equal(t, "URL is required", err.Fields["URL"])
 
+	// invalid URL
 	invalidURLCases := []string{
 		"/path",
 		"http:",
@@ -33,4 +35,13 @@ func TestBookmarkCreateIsValid(t *testing.T) {
 			require.Equal(t, "URL format is invalid", err.Fields["URL"])
 		})
 	}
+
+	// invalid Privacy
+	req = data.BookmarkCreate{
+		URL:     "https://example.com",
+		Privacy: data.BookmarkPrivacyQueryAll,
+	}
+	err = req.IsValid()
+	require.Error(t, err)
+	require.Equal(t, "Invalid permission", err.Fields["Privacy"])
 }

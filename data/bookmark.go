@@ -64,6 +64,11 @@ func (req *BookmarkCreate) IsValid() *ValidationError {
 		}
 	}
 
+	if req.Privacy == BookmarkPrivacyQueryAll {
+		isErr = true
+		fields["Privacy"] = "Invalid permission"
+	}
+
 	if isErr {
 		return NewValidationError("Bookmark is invalid", fields)
 	}

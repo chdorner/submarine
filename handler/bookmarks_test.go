@@ -37,9 +37,10 @@ func TestBookmarksCreateHandler(t *testing.T) {
 
 	// success
 	form := url.Values{}
-	form.Add("url", "https://example.com/about")
+	form.Add("url", "https://example.com/public")
 	form.Add("title", "Example - About")
 	form.Add("description", "About example.com")
+	form.Add("public", "on")
 
 	req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", contentType)
@@ -55,6 +56,27 @@ func TestBookmarksCreateHandler(t *testing.T) {
 	result := db.Last(&bookmark)
 	require.NoError(t, result.Error)
 	require.Equal(t, form.Get("url"), bookmark.URL)
+	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
+
+	// private bookmark (missing public in form values)
+	form = url.Values{}
+	form.Add("url", "https://example.com/private")
+
+	req = httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+
+	err = handler.BookmarksCreateHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, "/", rec.Header().Get("Location"))
+
+	bookmark = data.Bookmark{}
+	result = db.Last(&bookmark)
+	require.NoError(t, result.Error)
+	require.Equal(t, form.Get("url"), bookmark.URL)
+	require.Equal(t, data.BookmarkPrivacyPrivate, bookmark.Privacy)
 
 	// validation error
 	form = url.Values{}
