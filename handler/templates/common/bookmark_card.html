@@ -6,6 +6,13 @@
                 {{ .Title }}
             </a>
         </p>
+        {{ if .Tags }}
+        <p class="card-header-icon">
+            {{ range $tag := .Tags }}
+            <span class="tag is-link is-light ml-2"><a href="/tags/{{ $tag.Name }}">{{ $tag.Name }}</a></span>
+            {{ end }}
+        </p>
+        {{ end }}
     </header>
     {{ if .Description }}
     <div class="card-content">

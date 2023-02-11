@@ -17,7 +17,7 @@ func NewBookmarkRepository(db *gorm.DB) *BookmarkRepository {
 
 func (r *BookmarkRepository) Get(id uint) (*Bookmark, error) {
 	var bookmark Bookmark
-	result := r.db.First(&bookmark, id)
+	result := r.db.Preload("Tags").First(&bookmark, id)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -58,7 +58,7 @@ func (r *BookmarkRepository) Create(form BookmarkForm) (*Bookmark, error) {
 }
 
 func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult, error) {
-	query := r.db.Table("bookmarks")
+	query := r.db.Model(&Bookmark{}).Preload("Tags")
 
 	if req.Privacy != BookmarkPrivacyQueryAll {
 		privacy := BookmarkPrivacyPublic
