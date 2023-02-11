@@ -321,6 +321,7 @@ func TestBookmarkEditViewHandler(t *testing.T) {
 	bookmark, err := repo.Create(data.BookmarkForm{
 		URL:   "https://example.com/public",
 		Title: "Example public",
+		Tags:  "toRead, articles",
 	})
 	require.NoError(t, err)
 
@@ -337,6 +338,7 @@ func TestBookmarkEditViewHandler(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
 	require.Contains(t, rec.Body.String(), bookmark.Title)
+	require.Contains(t, rec.Body.String(), "toRead, articles")
 
 	// view unauthenticated
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(""))
@@ -381,6 +383,7 @@ func TestBookmarkEditHandler(t *testing.T) {
 	bookmark, err := repo.Create(data.BookmarkForm{
 		URL:   "https://example.com/private",
 		Title: "Example public",
+		Tags:  "toRead, articles",
 	})
 	require.NoError(t, err)
 
@@ -394,6 +397,7 @@ func TestBookmarkEditHandler(t *testing.T) {
 	form.Add("title", "Example - About")
 	form.Add("description", "About example.com")
 	form.Add("public", "on")
+	form.Add("tags", "articles, recommended")
 
 	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", contentType)
@@ -406,7 +410,7 @@ func TestBookmarkEditHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	var actual data.Bookmark
-	result := db.Last(&actual)
+	result := db.Preload("Tags").Last(&actual)
 	require.NoError(t, result.Error)
 	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
 	require.Equal(t, fmt.Sprintf("/bookmarks/%d", actual.ID), rec.Header().Get("Location"))
@@ -415,6 +419,9 @@ func TestBookmarkEditHandler(t *testing.T) {
 	require.Equal(t, form.Get("title"), actual.Title)
 	require.Equal(t, form.Get("description"), actual.Description)
 	require.Equal(t, data.BookmarkPrivacyPublic, actual.Privacy)
+	require.Len(t, actual.Tags, 2)
+	require.Equal(t, "articles", actual.Tags[0].Name)
+	require.Equal(t, "recommended", actual.Tags[1].Name)
 
 	// validation error
 	form = url.Values{}

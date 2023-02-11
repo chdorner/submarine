@@ -187,6 +187,7 @@ func TestBookmarkRepositoryUpdate(t *testing.T) {
 		Title:       "English Wikipedia",
 		Description: "English language",
 		Public:      true,
+		Tags:        "toRead, articles",
 	})
 	require.NoError(t, err)
 	require.NotNil(t, bookmark)
@@ -196,6 +197,7 @@ func TestBookmarkRepositoryUpdate(t *testing.T) {
 		Title:       "German Wikipedia",
 		Description: "German language",
 		Public:      false,
+		Tags:        "articles, recommended, top10",
 	}
 	err = repo.Update(bookmark.ID, expected)
 	require.NoError(t, err)
@@ -206,6 +208,10 @@ func TestBookmarkRepositoryUpdate(t *testing.T) {
 	require.Equal(t, expected.Title, actual.Title)
 	require.Equal(t, expected.Description, actual.Description)
 	require.False(t, actual.IsPublic())
+	require.Len(t, actual.Tags, 3)
+	require.Equal(t, "articles", actual.Tags[0].Name)
+	require.Equal(t, "recommended", actual.Tags[1].Name)
+	require.Equal(t, "top10", actual.Tags[2].Name)
 
 	// update not found
 	err = repo.Update(uint(42), expected)

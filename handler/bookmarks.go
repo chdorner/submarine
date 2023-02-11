@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 
@@ -151,11 +152,16 @@ func BookmarkEditViewHandler(c echo.Context) error {
 		return sc.RenderNotFound()
 	}
 
+	tagNames := []string{}
+	for _, tag := range bookmark.Tags {
+		tagNames = append(tagNames, tag.Name)
+	}
 	form := data.BookmarkForm{
 		URL:         bookmark.URL,
 		Title:       bookmark.Title,
 		Description: bookmark.Description,
 		Public:      bookmark.IsPublic(),
+		Tags:        strings.Join(tagNames, ", "),
 	}
 
 	return sc.Render(http.StatusOK, "bookmarks_edit.html", map[string]interface{}{

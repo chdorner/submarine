@@ -120,13 +120,31 @@ func (r *BookmarkRepository) Update(id uint, form BookmarkForm) error {
 		return fmt.Errorf("bookmark with id %d not found", id)
 	}
 
-	bookmark.URL = form.URL
-	bookmark.Title = form.Title
-	bookmark.Description = form.Description
-	bookmark.Privacy = publicToPrivacy(form.Public)
+	var result *gorm.DB
+	err = r.db.Transaction(func(tx *gorm.DB) error {
+		bookmark.URL = form.URL
+		bookmark.Title = form.Title
+		bookmark.Description = form.Description
+		bookmark.Privacy = publicToPrivacy(form.Public)
 
-	result := r.db.Save(bookmark)
-	return result.Error
+		result = tx.Save(bookmark)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		tagRepo := NewTagRepository(tx)
+		newTagNames := parseTags(form.Tags)
+		updatedTags, err := tagRepo.Upsert(newTagNames)
+		if err != nil {
+			return err
+		}
+		err = tx.Model(&bookmark).Association("Tags").Replace(updatedTags)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }
 
 func publicToPrivacy(public bool) BookmarkPrivacy {

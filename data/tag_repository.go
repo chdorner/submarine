@@ -13,8 +13,8 @@ func NewTagRepository(db *gorm.DB) *TagRepository {
 func (r *TagRepository) Upsert(tagNames []string) ([]Tag, error) {
 	tags := []Tag{}
 
-	var tag Tag
 	for _, name := range tagNames {
+		var tag Tag
 		result := r.db.Where("name = ?", name).First(&tag)
 		if result.RowsAffected > 0 {
 			tags = append(tags, tag)
