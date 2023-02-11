@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -103,12 +104,12 @@ func BookmarksCreateHandler(c echo.Context) error {
 		})
 	}
 
-	_, err := repo.Create(req)
+	bookmark, err := repo.Create(req)
 	if err != nil {
 		return sc.Render(http.StatusOK, "bookmarks_new.html", map[string]interface{}{
 			"error": "Unexpected error happened when creating bookmark, please try again.",
 		})
 	}
 
-	return sc.Redirect(http.StatusFound, "/")
+	return sc.Redirect(http.StatusFound, fmt.Sprintf("/bookmarks/%d", bookmark.ID))
 }

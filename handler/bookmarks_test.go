@@ -49,12 +49,13 @@ func TestBookmarksCreateHandler(t *testing.T) {
 
 	err := handler.BookmarksCreateHandler(sc)
 	require.NoError(t, err)
-	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
-	require.Equal(t, "/", rec.Header().Get("Location"))
 
 	var bookmark data.Bookmark
 	result := db.Last(&bookmark)
 	require.NoError(t, result.Error)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, fmt.Sprintf("/bookmarks/%d", bookmark.ID), rec.Header().Get("Location"))
+
 	require.Equal(t, form.Get("url"), bookmark.URL)
 	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
 
@@ -69,12 +70,13 @@ func TestBookmarksCreateHandler(t *testing.T) {
 
 	err = handler.BookmarksCreateHandler(sc)
 	require.NoError(t, err)
-	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
-	require.Equal(t, "/", rec.Header().Get("Location"))
 
 	bookmark = data.Bookmark{}
 	result = db.Last(&bookmark)
 	require.NoError(t, result.Error)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, fmt.Sprintf("/bookmarks/%d", bookmark.ID), rec.Header().Get("Location"))
+
 	require.Equal(t, form.Get("url"), bookmark.URL)
 	require.Equal(t, data.BookmarkPrivacyPrivate, bookmark.Privacy)
 
