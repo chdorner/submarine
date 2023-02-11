@@ -37,12 +37,20 @@ func TestBookmarkRepositoryCreate(t *testing.T) {
 		URL:         "https://en.wikipedia.org/wiki/Main_Page",
 		Title:       "Wikipedia",
 		Description: "the free encyclopedia that anyone can edit",
+		Public:      true,
+		Tags:        "to-read, articles",
 	}
 	bookmark, err := repo.Create(req)
 	require.NoError(t, err)
 	require.Equal(t, req.URL, bookmark.URL)
 	require.Equal(t, req.Title, bookmark.Title)
 	require.Equal(t, req.Description, bookmark.Description)
+	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
+	tagNames := []string{}
+	for _, tag := range bookmark.Tags {
+		tagNames = append(tagNames, tag.Name)
+	}
+	require.Equal(t, []string{"to-read", "articles"}, tagNames)
 
 	// minimum required fields
 	_, err = repo.Create(data.BookmarkForm{

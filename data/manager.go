@@ -15,6 +15,7 @@ func Migrate(db *gorm.DB) {
 		&Session{},
 		&Settings{},
 		&Bookmark{},
+		&Tag{},
 	)
 	if err != nil {
 		panic(err)

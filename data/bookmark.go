@@ -20,6 +20,8 @@ type Bookmark struct {
 	Title       string
 	Description string
 	Privacy     BookmarkPrivacy `gorm:"default:'private'"`
+
+	Tags []Tag `gorm:"many2many:bookmark_tags;"`
 }
 
 type BookmarkForm struct {
@@ -27,6 +29,7 @@ type BookmarkForm struct {
 	Title       string
 	Description string
 	Public      bool
+	Tags        string
 }
 
 type BookmarkListRequest struct {

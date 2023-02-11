@@ -2,18 +2,21 @@ package test
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"testing"
 
 	"gorm.io/gorm"
 
 	"github.com/chdorner/submarine/data"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
 func InitTestDB(t *testing.T) (*gorm.DB, func()) {
-	path := fmt.Sprintf("./test-%d.db", rand.Int())
+	guid, err := uuid.NewUUID()
+	require.NoError(t, err)
+
+	path := fmt.Sprintf("./test-%s.db", guid.String())
 
 	db, err := data.Connect(path)
 	require.NoError(t, err)

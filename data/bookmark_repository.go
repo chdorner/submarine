@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -27,19 +28,33 @@ func (r *BookmarkRepository) Get(id uint) (*Bookmark, error) {
 }
 
 func (r *BookmarkRepository) Create(form BookmarkForm) (*Bookmark, error) {
-	bookmark := &Bookmark{
-		URL:         form.URL,
-		Title:       form.Title,
-		Description: form.Description,
-		Privacy:     publicToPrivacy(form.Public),
-	}
+	var bookmark *Bookmark
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		tagRepo := NewTagRepository(tx)
+		tagNames := parseTags(form.Tags)
+		tags, err := tagRepo.Upsert(tagNames)
+		if err != nil {
+			return err
+		}
 
-	result := r.db.Create(bookmark)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+		bookmark = &Bookmark{
+			URL:         form.URL,
+			Title:       form.Title,
+			Description: form.Description,
+			Privacy:     publicToPrivacy(form.Public),
+			Tags:        tags,
+		}
 
-	return bookmark, nil
+		result := tx.Create(bookmark)
+		if result.Error != nil {
+			bookmark = nil
+			return result.Error
+		}
+
+		return nil
+	})
+
+	return bookmark, err
 }
 
 func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult, error) {
@@ -119,4 +134,15 @@ func publicToPrivacy(public bool) BookmarkPrivacy {
 		return BookmarkPrivacyPublic
 	}
 	return BookmarkPrivacyPrivate
+}
+
+func parseTags(tagsString string) []string {
+	tags := []string{}
+	for _, name := range strings.Split(tagsString, ",") {
+		trimmed := strings.TrimSpace(name)
+		if trimmed != "" {
+			tags = append(tags, strings.TrimSpace(name))
+		}
+	}
+	return tags
 }
