@@ -1,0 +1,23 @@
+{{ define "bookmark_card" }}
+<div class="bookmark card">
+    <header class="card-header">
+        <p class="card-header-title">
+            <a href="{{ .URL }}" rel="noreferrer noopener" target="_blank">
+                {{ .Title }}
+            </a>
+        </p>
+    </header>
+    {{ if .Description }}
+    <div class="card-content">
+        <p>{{ .Description }}</p>
+    </div>
+    {{ end }}
+    <footer class="card-footer">
+        <a href="/bookmarks/{{ .ID }}" class="card-footer-item">{{ .CreatedAt.Format "_2 Jan 2006" }}</a>
+        {{ if IsAuthenticated }}
+        <a href="" class="card-footer-item">Edit</a>
+        <a href="" class="card-footer-item">Delete</a>
+        {{ end }}
+    </footer>
+</div>
+{{ end }}

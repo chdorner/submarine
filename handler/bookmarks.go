@@ -40,6 +40,27 @@ func BookmarksListHandler(c echo.Context) error {
 	return err
 }
 
+func BookmarkShowHandler(c echo.Context) error {
+	sc := c.(*middleware.SubmarineContext)
+	repo := data.NewBookmarkRepository(sc.DB)
+
+	id, err := strconv.Atoi(sc.Param("id"))
+	if err != nil {
+		return sc.RenderNotFound()
+	}
+	bookmark, err := repo.Get(uint(id))
+	if err != nil || bookmark == nil {
+		return sc.RenderNotFound()
+	}
+	if bookmark.Privacy == data.BookmarkPrivacyPrivate && !sc.IsAuthenticated() {
+		return sc.RenderNotFound()
+	}
+
+	return sc.Render(http.StatusOK, "bookmarks_show.html", map[string]interface{}{
+		"bookmark": bookmark,
+	})
+}
+
 func BookmarksNewHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
 	if !sc.IsAuthenticated() {

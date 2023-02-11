@@ -10,6 +10,18 @@ func NewBookmarkRepository(db *gorm.DB) *BookmarkRepository {
 	return &BookmarkRepository{db}
 }
 
+func (r *BookmarkRepository) Get(id uint) (*Bookmark, error) {
+	var bookmark Bookmark
+	result := r.db.First(&bookmark, id)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &bookmark, nil
+}
+
 func (r *BookmarkRepository) Create(req BookmarkCreate) (*Bookmark, error) {
 	bookmark := &Bookmark{
 		URL:         req.URL,

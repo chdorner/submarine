@@ -50,3 +50,7 @@ func (sc *SubmarineContext) RedirectToLogin() error {
 	}
 	return sc.Redirect(http.StatusFound, redirect)
 }
+
+func (sc *SubmarineContext) RenderNotFound() error {
+	return sc.Render(http.StatusNotFound, "404.html", nil)
+}

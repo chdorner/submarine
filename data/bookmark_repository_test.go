@@ -9,6 +9,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestBookmarkRepositoryGet(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	expected := data.Bookmark{URL: "https://example.com"}
+	result := db.Create(&expected)
+	require.NoError(t, result.Error)
+
+	actual, err := repo.Get(expected.ID)
+	require.NoError(t, err)
+	require.Equal(t, expected.ID, actual.ID)
+
+	// not found
+	actual, err = repo.Get(0)
+	require.NoError(t, err)
+	require.Nil(t, actual)
+}
+
 func TestBookmarkRepositoryCreate(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()
