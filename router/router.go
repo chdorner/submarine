@@ -53,6 +53,8 @@ func New(db *gorm.DB) *echo.Echo {
 
 	e.GET("/", handler.BookmarksListHandler)
 	e.POST("/bookmarks/:id/delete", handler.BookmarkDeleteHandler)
+	e.GET("/bookmarks/:id/edit", handler.BookmarkEditViewHandler)
+	e.POST("/bookmarks/:id/edit", handler.BookmarkEditHandler)
 	e.GET("/bookmarks/:id", handler.BookmarkShowHandler)
 	e.GET("/bookmarks/new", handler.BookmarksNewHandler)
 	e.POST("/bookmarks", handler.BookmarksCreateHandler)

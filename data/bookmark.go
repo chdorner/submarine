@@ -22,11 +22,11 @@ type Bookmark struct {
 	Privacy     BookmarkPrivacy `gorm:"default:'private'"`
 }
 
-type BookmarkCreate struct {
+type BookmarkForm struct {
 	URL         string
 	Title       string
 	Description string
-	Privacy     BookmarkPrivacy
+	Public      bool
 }
 
 type BookmarkListRequest struct {
@@ -44,7 +44,11 @@ type BookmarkListResult struct {
 	NextOffset int
 }
 
-func (req *BookmarkCreate) IsValid() *ValidationError {
+func (b *Bookmark) IsPublic() bool {
+	return b.Privacy == BookmarkPrivacyPublic
+}
+
+func (req *BookmarkForm) IsValid() *ValidationError {
 	isErr := false
 	fields := make(map[string]string)
 
@@ -62,11 +66,6 @@ func (req *BookmarkCreate) IsValid() *ValidationError {
 			isErr = true
 			fields["URL"] = urlParseError
 		}
-	}
-
-	if req.Privacy == BookmarkPrivacyQueryAll {
-		isErr = true
-		fields["Privacy"] = "Invalid permission"
 	}
 
 	if isErr {

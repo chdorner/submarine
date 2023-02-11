@@ -118,20 +118,20 @@ func TestBookmarksListHandler(t *testing.T) {
 	for i := 0; i < 8; i++ {
 		title := fmt.Sprintf("Bookmark %d", i)
 
-		var privacy data.BookmarkPrivacy
+		var public bool
 		if i%2 == 0 {
-			privacy = data.BookmarkPrivacyPublic
+			public = true
 			title = fmt.Sprintf("%s public", title)
 			publicTitles = append(publicTitles, title)
 		} else {
-			privacy = data.BookmarkPrivacyPrivate
+			public = false
 			title = fmt.Sprintf("%s private", title)
 			privateTitles = append(privateTitles, title)
 		}
-		_, err := repo.Create(data.BookmarkCreate{
-			URL:     fmt.Sprintf("https://example-%d.com", i),
-			Title:   title,
-			Privacy: privacy,
+		_, err := repo.Create(data.BookmarkForm{
+			URL:    fmt.Sprintf("https://example-%d.com", i),
+			Title:  title,
+			Public: public,
 		})
 		require.NoError(t, err)
 	}
@@ -169,16 +169,16 @@ func TestBookmarksShowHandler(t *testing.T) {
 	defer cleanup()
 	repo := data.NewBookmarkRepository(db)
 
-	publicBookmark, err := repo.Create(data.BookmarkCreate{
-		URL:     "https://example.com/public",
-		Title:   "Example public",
-		Privacy: data.BookmarkPrivacyPublic,
+	publicBookmark, err := repo.Create(data.BookmarkForm{
+		URL:    "https://example.com/public",
+		Title:  "Example public",
+		Public: true,
 	})
 	require.NoError(t, err)
-	privateBookmark, err := repo.Create(data.BookmarkCreate{
-		URL:     "https://example.com/private",
-		Title:   "Example private",
-		Privacy: data.BookmarkPrivacyPrivate,
+	privateBookmark, err := repo.Create(data.BookmarkForm{
+		URL:    "https://example.com/private",
+		Title:  "Example private",
+		Public: false,
 	})
 	require.NoError(t, err)
 
@@ -247,7 +247,7 @@ func TestBookmarkDeleteHandler(t *testing.T) {
 	defer cleanup()
 	repo := data.NewBookmarkRepository(db)
 
-	bookmark, err := repo.Create(data.BookmarkCreate{
+	bookmark, err := repo.Create(data.BookmarkForm{
 		URL:   "https://example.com/public",
 		Title: "Example public",
 	})
@@ -308,4 +308,181 @@ func TestBookmarkDeleteHandler(t *testing.T) {
 	err = handler.BookmarkDeleteHandler(sc)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+}
+
+func TestBookmarkEditViewHandler(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	bookmark, err := repo.Create(data.BookmarkForm{
+		URL:   "https://example.com/public",
+		Title: "Example public",
+	})
+	require.NoError(t, err)
+
+	e := router.NewBaseApp(db)
+
+	// view authenticated
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(""))
+	rec := httptest.NewRecorder()
+	sc := test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkEditViewHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	require.Contains(t, rec.Body.String(), bookmark.Title)
+
+	// view unauthenticated
+	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkEditViewHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.True(t, strings.HasPrefix(rec.Result().Header.Get("Location"), "/login?next="))
+
+	// view non-existing bookmark
+	req = httptest.NewRequest(http.MethodGet, "/bookmarks/42/edit", strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("42")
+
+	err = handler.BookmarkEditViewHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+
+	// view non-existing bookmark with non-integer id
+	req = httptest.NewRequest(http.MethodGet, "/bookmarks/notaninteger/edit", strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("notaninteger")
+
+	err = handler.BookmarkEditViewHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+}
+
+func TestBookmarkEditHandler(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	bookmark, err := repo.Create(data.BookmarkForm{
+		URL:   "https://example.com/private",
+		Title: "Example public",
+	})
+	require.NoError(t, err)
+
+	e := router.NewBaseApp(db)
+
+	contentType := "application/x-www-form-urlencoded"
+
+	// success
+	form := url.Values{}
+	form.Add("url", "https://example.com/public")
+	form.Add("title", "Example - About")
+	form.Add("description", "About example.com")
+	form.Add("public", "on")
+
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec := httptest.NewRecorder()
+	sc := test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkEditHandler(sc)
+	require.NoError(t, err)
+
+	var actual data.Bookmark
+	result := db.Last(&actual)
+	require.NoError(t, result.Error)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, fmt.Sprintf("/bookmarks/%d", actual.ID), rec.Header().Get("Location"))
+
+	require.Equal(t, form.Get("url"), actual.URL)
+	require.Equal(t, form.Get("title"), actual.Title)
+	require.Equal(t, form.Get("description"), actual.Description)
+	require.Equal(t, data.BookmarkPrivacyPublic, actual.Privacy)
+
+	// validation error
+	form = url.Values{}
+	form.Add("url", "")
+	form.Add("title", "Example - About")
+
+	req = httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkEditHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	require.Contains(t, rec.Body.String(), "Failed to edit bookmark")
+	require.Contains(t, rec.Body.String(), "URL is required")
+
+	// edit non-existing bookmark
+	form = url.Values{}
+	form.Add("url", "https://example.com/public")
+	form.Add("title", "Example - About")
+	form.Add("description", "About example.com")
+	form.Add("public", "on")
+
+	req = httptest.NewRequest(http.MethodPost, "/bookmarks/42/edit", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("42")
+
+	err = handler.BookmarkEditHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+
+	// edit non-existing bookmark with non-integer id
+	form = url.Values{}
+	form.Add("url", "https://example.com/public")
+	form.Add("title", "Example - About")
+	form.Add("description", "About example.com")
+	form.Add("public", "on")
+
+	req = httptest.NewRequest(http.MethodPost, "/bookmarks/notaninteger/edit", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("notaninteger")
+
+	err = handler.BookmarkEditHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+
+	// unauthenticated
+	form = url.Values{}
+	form.Add("url", "https://example.com/public")
+	form.Add("title", "Example - About")
+	form.Add("description", "About example.com")
+	form.Add("public", "on")
+
+	req = httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/edit", bookmark.ID), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", contentType)
+	rec = httptest.NewRecorder()
+	sc = test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkEditHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, "/login", rec.Header().Get("Location"))
 }

@@ -1,0 +1,46 @@
+{{ define "bookmark_form" }}
+<form action="{{ .form.action }}" method="post">
+    {{ if .error }}
+    <div class="notification is-danger">
+        {{ .error }}
+    </div>
+    {{ end }}
+
+    <div class="field">
+        <label class="label">URL</label>
+        <div class="control">
+            <input class="input {{ if .validationErrors.URL }}is-danger{{ end }}" type="text" name="url" placeholder="https://en.wikipedia.org" value="{{ .bookmark.URL }}">
+        </div>
+        {{ if .validationErrors.URL }}
+        <p class="help is-danger">{{ .validationErrors.URL }}</p>
+        {{ end }}
+    </div>
+
+    <div class="field">
+        <label class="label">Title</label>
+        <div class="control">
+            <input class="input" type="text" name="title" placeholder="Wikipedia" value="{{ .bookmark.Title }}">
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Description</label>
+        <div class="control">
+            <textarea class="textarea is-small" name="description">{{ .bookmark.Description }}</textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">
+            <input type="checkbox" name="public"{{ if .bookmark.Public }} checked{{ end }}>
+            Is Public
+        </label>
+    </div>
+
+    <div class="field is-grouped">
+        <div class="control">
+            <button class="button is-primary">{{ .form.submit }}</button>
+        </div>
+    </div>
+</form>
+{{ end }}

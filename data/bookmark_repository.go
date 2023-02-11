@@ -26,12 +26,12 @@ func (r *BookmarkRepository) Get(id uint) (*Bookmark, error) {
 	return &bookmark, nil
 }
 
-func (r *BookmarkRepository) Create(req BookmarkCreate) (*Bookmark, error) {
+func (r *BookmarkRepository) Create(form BookmarkForm) (*Bookmark, error) {
 	bookmark := &Bookmark{
-		URL:         req.URL,
-		Title:       req.Title,
-		Description: req.Description,
-		Privacy:     req.Privacy,
+		URL:         form.URL,
+		Title:       form.Title,
+		Description: form.Description,
+		Privacy:     publicToPrivacy(form.Public),
 	}
 
 	result := r.db.Create(bookmark)
@@ -94,4 +94,29 @@ func (r *BookmarkRepository) Delete(id uint) error {
 	}
 
 	return nil
+}
+
+func (r *BookmarkRepository) Update(id uint, form BookmarkForm) error {
+	bookmark, err := r.Get(id)
+	if err != nil {
+		return err
+	}
+	if bookmark == nil {
+		return fmt.Errorf("bookmark with id %d not found", id)
+	}
+
+	bookmark.URL = form.URL
+	bookmark.Title = form.Title
+	bookmark.Description = form.Description
+	bookmark.Privacy = publicToPrivacy(form.Public)
+
+	result := r.db.Save(bookmark)
+	return result.Error
+}
+
+func publicToPrivacy(public bool) BookmarkPrivacy {
+	if public {
+		return BookmarkPrivacyPublic
+	}
+	return BookmarkPrivacyPrivate
 }

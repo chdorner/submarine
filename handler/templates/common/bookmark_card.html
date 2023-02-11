@@ -15,7 +15,7 @@
     <footer class="card-footer">
         <a href="/bookmarks/{{ .ID }}" class="card-footer-item">{{ .CreatedAt.Format "_2 Jan 2006" }}</a>
         {{ if IsAuthenticated }}
-        <a href="" class="card-footer-item">Edit</a>
+        <a href="/bookmarks/{{ .ID }}/edit" class="card-footer-item">Edit</a>
         <a class="card-footer-item js-modal-trigger" data-target="modal-delete-bookmark-{{ .ID }}">Delete</a>
         <div class="modal" id="modal-delete-bookmark-{{ .ID }}">
             <div class="modal-background"></div>
