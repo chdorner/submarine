@@ -16,7 +16,25 @@
         <a href="/bookmarks/{{ .ID }}" class="card-footer-item">{{ .CreatedAt.Format "_2 Jan 2006" }}</a>
         {{ if IsAuthenticated }}
         <a href="" class="card-footer-item">Edit</a>
-        <a href="" class="card-footer-item">Delete</a>
+        <a class="card-footer-item js-modal-trigger" data-target="modal-delete-bookmark-{{ .ID }}">Delete</a>
+        <div class="modal" id="modal-delete-bookmark-{{ .ID }}">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Delete Bookmark</p>
+                    <button class="delete" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <p>Are you sure you want to delete the bookmark <i>{{ .Title }}</i>?</p>
+                </section>
+                <footer class="modal-card-foot">
+                    <form method="post" action="/bookmarks/{{ .ID }}/delete">
+                        <button type="submit" class="button is-danger">Delete Bookmark</button>
+                        <button class="button" type="reset">Cancel</button>
+                    </form>
+                </footer>
+            </div>
+        </div>
         {{ end }}
     </footer>
 </div>

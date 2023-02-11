@@ -151,3 +151,23 @@ func TestBookmarkRepositoryList(t *testing.T) {
 		require.Equal(t, data.BookmarkPrivacyPublic, item.Privacy)
 	}
 }
+
+func TestBookmarkRepositoryDelete(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	expected := data.Bookmark{URL: "https://example.com"}
+	result := db.Create(&expected)
+	require.NoError(t, result.Error)
+
+	err := repo.Delete(expected.ID)
+	require.NoError(t, err)
+	deleted, err := repo.Get(expected.ID)
+	require.NoError(t, err)
+	require.Nil(t, deleted)
+
+	// not found
+	err = repo.Delete(42)
+	require.EqualError(t, err, "bookmark with id 42 not found")
+}

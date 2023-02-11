@@ -241,3 +241,71 @@ func TestBookmarksShowHandler(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
 }
+
+func TestBookmarkDeleteHandler(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	bookmark, err := repo.Create(data.BookmarkCreate{
+		URL:   "https://example.com/public",
+		Title: "Example public",
+	})
+	require.NoError(t, err)
+
+	e := router.NewBaseApp(db)
+
+	// delete unauthenticated
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/delete", bookmark.ID), strings.NewReader(""))
+	rec := httptest.NewRecorder()
+	sc := test.NewUnauthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkDeleteHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, "/login", rec.Result().Header.Get("Location"))
+
+	existing, err := repo.Get(bookmark.ID)
+	require.NoError(t, err)
+	require.NotNil(t, existing)
+
+	// delete authenticated
+	req = httptest.NewRequest(http.MethodPost, fmt.Sprintf("/bookmarks/%d/delete", bookmark.ID), strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues(fmt.Sprint(bookmark.ID))
+
+	err = handler.BookmarkDeleteHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusFound, rec.Result().StatusCode)
+	require.Equal(t, "/", rec.Result().Header.Get("Location"))
+
+	existing, err = repo.Get(bookmark.ID)
+	require.NoError(t, err)
+	require.Nil(t, existing)
+
+	// delete non-existing bookmark
+	req = httptest.NewRequest(http.MethodPost, "/bookmarks/42/delete", strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("42")
+
+	err = handler.BookmarkDeleteHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+
+	// delete non-existing bookmark with non-integer id
+	req = httptest.NewRequest(http.MethodPost, "/bookmarks/notaninteger/delete", strings.NewReader(""))
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	sc.SetParamNames("id")
+	sc.SetParamValues("notaninteger")
+
+	err = handler.BookmarkDeleteHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rec.Result().StatusCode)
+}

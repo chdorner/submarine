@@ -113,3 +113,22 @@ func BookmarksCreateHandler(c echo.Context) error {
 
 	return sc.Redirect(http.StatusFound, fmt.Sprintf("/bookmarks/%d", bookmark.ID))
 }
+
+func BookmarkDeleteHandler(c echo.Context) error {
+	sc := c.(*middleware.SubmarineContext)
+	if !sc.IsAuthenticated() {
+		return sc.RedirectToLogin()
+	}
+
+	repo := data.NewBookmarkRepository(sc.DB)
+	id, err := strconv.Atoi(sc.Param("id"))
+	if err != nil {
+		return sc.RenderNotFound()
+	}
+	err = repo.Delete(uint(id))
+	if err != nil {
+		return sc.RenderNotFound()
+	}
+
+	return sc.Redirect(http.StatusFound, "/")
+}

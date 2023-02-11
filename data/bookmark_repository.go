@@ -1,6 +1,10 @@
 package data
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 type BookmarkRepository struct {
 	db *gorm.DB
@@ -77,4 +81,17 @@ func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult,
 		HasNext:    int64(req.Offset+limit) < count,
 		NextOffset: req.Offset + limit,
 	}, nil
+}
+
+func (r *BookmarkRepository) Delete(id uint) error {
+	result := r.db.Delete(&Bookmark{}, id)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("bookmark with id %d not found", id)
+	}
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
