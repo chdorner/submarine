@@ -18,8 +18,8 @@
         {{ template "bookmark_card" $bookmark }}
         {{ end }}
         <nav class="pagination is-centered" role="navigation" aria-label="navigation">
-            <a class="button pagination-previous" href="{{ if .result.HasPrev }}/?offset={{ .result.PrevOffset }}{{ else }}#{{ end }}" {{ if not .result.HasPrev }}disabled{{ end }}>Previous</a>
-            <a class="button pagination-next" href="{{ if .result.HasNext }}/?offset={{ .result.NextOffset }}{{ else }}#{{ end }}" {{ if not .result.HasNext }}disabled{{ end }}>Next Page</a>
+            <a class="button pagination-previous" {{ if .result.HasPrev }}href="/?offset={{ .result.PrevOffset }}"{{ end }} {{ if not .result.HasPrev }}disabled{{ end }}>Previous</a>
+            <a class="button pagination-next" {{ if .result.HasNext }}href="/?offset={{ .result.NextOffset }}"{{ end }} {{ if not .result.HasNext }}disabled{{ end }}>Next Page</a>
         </nav>
     </div>
     {{ end }}
