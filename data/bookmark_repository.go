@@ -94,12 +94,12 @@ func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult,
 	}
 
 	return &BookmarkListResult{
-		Items:      bookmarks,
-		Count:      count,
-		HasPrev:    req.Offset > 0,
-		PrevOffset: req.Offset - limit,
-		HasNext:    int64(req.Offset+limit) < count,
-		NextOffset: req.Offset + limit,
+		Items:   bookmarks,
+		Count:   count,
+		HasPrev: req.Offset > 0,
+		PrevURL: fmt.Sprintf("%soffset=%d", req.PaginationPathPrefix, req.Offset-limit),
+		HasNext: int64(req.Offset+limit) < count,
+		NextURL: fmt.Sprintf("%soffset=%d", req.PaginationPathPrefix, req.Offset+limit),
 	}, nil
 }
 

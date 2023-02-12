@@ -1,53 +1,58 @@
 {{ define "bookmark_form" }}
-<form action="{{ .form.action }}" method="post">
+<form action="{{ .form.action }}" method="post" class="uk-form-stacked uk-width-1-2@m">
     {{ if .error }}
-    <div class="notification is-danger">
-        {{ .error }}
+    <div class="uk-alert-danger" uk-alert>
+        <p>{{ .error }}</p>
     </div>
     {{ end }}
 
-    <div class="field">
-        <label class="label">URL</label>
-        <div class="control">
-            <input class="input {{ if .validationErrors.URL }}is-danger{{ end }}" type="text" name="url" placeholder="https://en.wikipedia.org" value="{{ .bookmark.URL }}">
+    <fieldset class="uk-fieldset">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="bookmark-url">URL</label>
+            <div class="uk-form-controls">
+                <input class="uk-input{{ if .validationErrors.URL }} uk-form-danger{{ end }}" id="bookmark-url" type="text" name="url" placeholder="https://en.wikipedia.org" value="{{ .bookmark.URL }}">
+                {{ if .validationErrors.URL }}
+                <p class="uk-flex uk-flex-middle uk-text-danger ">
+                    <span data-uk-icon="icon:warning" class="uk-text-danger uk-margin-small-right"></span>
+                    {{ .validationErrors.URL }}
+                </p>
+                {{ end }}
+            </div>
         </div>
-        {{ if .validationErrors.URL }}
-        <p class="help is-danger">{{ .validationErrors.URL }}</p>
-        {{ end }}
-    </div>
 
-    <div class="field">
-        <label class="label">Title</label>
-        <div class="control">
-            <input class="input" type="text" name="title" placeholder="Wikipedia" value="{{ .bookmark.Title }}">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="bookmark-title">Title</label>
+            <div class="uk-form-controls">
+                <input class="uk-input" id="bookmark-title" type="text" name="title" placeholder="Wikipedia" value="{{ .bookmark.Title }}">
+            </div>
         </div>
-    </div>
 
-    <div class="field">
-        <label class="label">Description</label>
-        <div class="control">
-            <textarea class="textarea is-small" name="description">{{ .bookmark.Description }}</textarea>
+        <div class="uk-margin">
+            <label class="uk-form-label" for="bookmark-description">Description</label>
+            <div class="uk-form-controls">
+                <textarea class="uk-textarea" rows="3" id="bookmark-description" name="description">{{ .bookmark.Description }}</textarea>
+            </div>
         </div>
-    </div>
 
-    <div class="field">
-        <label class="label">Tags</label>
-        <div class="control">
-            <input class="input" type="text" name="tags" placeholder="toRead, articles" value="{{ .bookmark.Tags }}">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="bookmark-tags">Tags</label>
+            <div class="uk-form-controls">
+                <input class="uk-input" id="bookmark-tags" type="text" name="tags" placeholder="toRead, articles" value="{{ .bookmark.Tags }}">
+            </div>
         </div>
-    </div>
 
-    <div class="field">
-        <label class="label">
-            <input type="checkbox" name="public"{{ if .bookmark.Public }} checked{{ end }}>
-            Is Public
-        </label>
-    </div>
-
-    <div class="field is-grouped">
-        <div class="control">
-            <button class="button is-primary">{{ .form.submit }}</button>
+        <div class="uk-margin">
+            <label class="uk-form-label">
+                <input class="uk-checkbox" id="bookmark-public" type="checkbox" name="public"{{ if .bookmark.Public }} checked{{ end }}>
+                Is Public
+            </label>
         </div>
-    </div>
+
+        <div class="uk-margin">
+            <div class="uk-form-controls">
+                <button class="uk-button uk-button-primary" type="submit">{{ .form.submit }}</button>
+            </div>
+        </div>
+    </fieldset>
 </form>
 {{ end }}

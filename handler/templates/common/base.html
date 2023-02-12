@@ -4,55 +4,66 @@
     <head>
         <title>Submarine</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ StaticAssetPath "bulma.min.css" }}">
-        <link rel="stylesheet" href="{{ StaticAssetPath "fontawesome.min.css" }}">
-        <link rel="stylesheet" href="{{ StaticAssetPath "fa-solid.min.css" }}">
-        <link rel="stylesheet" href="{{ StaticAssetPath "submarine.css" }}">
+        <link rel="stylesheet" href="{{ StaticAssetPath "uikit.min.css" }}">
         <link rel="icon" href="{{ StaticAssetPath "logo.png" }}" />
-        <script type="text/javascript" src="{{ StaticAssetPath "submarine.js" }}"></script>
+        <script src="{{ StaticAssetPath "uikit.min.js" }}"></script>
+        <script src="{{ StaticAssetPath "uikit-icons.min.js" }}"></script>
     </head>
     <body>
-        <div class="container">
-            <nav class="navbar is-transparent" role="navigation" aria-label="main navigation">
-                <div class="navbar-brand">
-                    <a class="navbar-item" href="/">
-                        <img src="{{ StaticAssetPath "logo.png" }}" width="28" height="28">
+        <div class="uk-container">
+            <nav class="uk-navbar-container" uk-navbar>
+                <div class="uk-navbar-left">
+                    <a class="uk-navbar-item uk-logo" href="/" aria-label="Back to Home">
+                        <img src="{{ StaticAssetPath "logo.png" }}" width="44" height="44" alt="Submarine logo" class="uk-margin-small-left">
                     </a>
-                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                      </a>
-                </div>
-                <div id="navbarMain" class="navbar-menu">
-                    <div class="navbar-start">
-                        <a href="/" class="navbar-item">
-                            Bookmarks
-                        </a>
 
-                        {{ if .IsAuthenticated }}
-                        <a href="/settings" class="navbar-item">
-                            Settings
-                        </a>
+                    <ul class="uk-navbar-nav">
+                        <li>
+                            <a href="/">Bookmarks</a>
+                        </li>
+                        {{ if IsAuthenticated }}
+                        <li class="uk-visible@s">
+                            <a href="/settings">Settings</a>
+                        </li>
                         {{ end }}
+                    </ul>
+                </div>
+                <div class="uk-navbar-right">
+                    {{ if IsAuthenticated }}
+                    <div class="uk-navbar-item uk-visible@s">
+                        <a href="/bookmarks/new" class="uk-button uk-button-primary">Add Bookmark</a>
                     </div>
-                    <div class="navbar-end">
-                        <div class="navbar-item">
-                            <div class="buttons">
-                                {{ if .IsAuthenticated }}
-                                <a href="/bookmarks/new" class="button is-primary">
-                                    Add Bookmark
-                                </a>
-                                <a href="/logout" class="button is-light">
-                                    Logout
-                                </a>
-                                {{ else }}
-                                <a href="/login" class="button is-primary">
-                                    Login
-                                </a>
-                                {{ end }}
-                            </div>
+
+                    <div class="uk-navbar-item uk-hidden@s">
+                        <a href="/bookmarks/new" class="uk-button uk-button-primary">Add</a>
+                    </div>
+                    <a class="uk-navbar-toggle uk-hidden@s uk-margin-small-right" href="#" aria-label="Open menu" uk-navbar-toggle-icon uk-toggle="target: #mobile-sidenav"></a>
+
+                    <div class="uk-navbar-item uk-visible@s uk-margin-small-right">
+                        <a href="/logout" class="uk-button uk-button-default">Logout</a>
+                    </div>
+                    {{ else }}
+                    <div class="uk-navbar-item uk-margin-small-right">
+                        <a href="/login" class="uk-button uk-button-primary">Login</a>
+                    </div>
+                    {{ end }}
+                </div>
+
+                <div id="mobile-sidenav" uk-offcanvas="flip: true; overlay: true; mode: none">
+                    <div class="uk-offcanvas-bar">
+                        {{ if IsAuthenticated }}
+                        <ul class="uk-nav uk-nav-primary uk-nav-center uk-margin-auto-vertical">
+                            <li><a href="/">Bookmarks</a></li>
+                            <li><a href="/settings">Settings</a></li>
+                        </ul>
+                        <hr class="uk-divider-icon">
+                        <div class="uk-navbar-item">
+                            <a href="/bookmarks/new" class="uk-button uk-button-primary">Add Bookmark</a>
                         </div>
+                        <div class="uk-navbar-item">
+                            <a href="/logout" class="uk-button uk-button-default">Logout</a>
+                        </div>
+                        {{ end }}
                     </div>
                 </div>
             </nav>

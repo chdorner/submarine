@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,6 +33,8 @@ func TagHandler(c echo.Context) error {
 		Privacy: privacy,
 		TagID:   tag.ID,
 		Offset:  offset,
+
+		PaginationPathPrefix: fmt.Sprintf("/tags/%s?", tag.Name),
 	})
 	if err != nil {
 		return sc.Render(http.StatusOK, "tags_show.html", map[string]interface{}{

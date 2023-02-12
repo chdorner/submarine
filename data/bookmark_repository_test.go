@@ -85,7 +85,8 @@ func TestBookmarkRepositoryList(t *testing.T) {
 
 	// privacy all - page 1
 	result, err := repo.List(data.BookmarkListRequest{
-		Privacy: data.BookmarkPrivacyQueryAll,
+		Privacy:              data.BookmarkPrivacyQueryAll,
+		PaginationPathPrefix: "/?",
 	})
 	require.NoError(t, err)
 	require.Len(t, result.Items, 10)
@@ -94,12 +95,14 @@ func TestBookmarkRepositoryList(t *testing.T) {
 	require.Equal(t, int64(25), result.Count)
 	require.False(t, result.HasPrev)
 	require.True(t, result.HasNext)
-	require.Equal(t, 10, result.NextOffset)
+	require.Equal(t, "/?offset=10", result.NextURL)
 
 	// privacy all - page 2
 	result, err = repo.List(data.BookmarkListRequest{
 		Privacy: data.BookmarkPrivacyQueryAll,
 		Offset:  10,
+
+		PaginationPathPrefix: "/?",
 	})
 	require.NoError(t, err)
 	require.Len(t, result.Items, 10)
@@ -107,14 +110,15 @@ func TestBookmarkRepositoryList(t *testing.T) {
 	require.Equal(t, "Bookmark 19", result.Items[len(result.Items)-1].Title)
 	require.Equal(t, int64(25), result.Count)
 	require.True(t, result.HasPrev)
-	require.Equal(t, 0, result.PrevOffset)
+	require.Equal(t, "/?offset=0", result.PrevURL)
 	require.True(t, result.HasNext)
-	require.Equal(t, 20, result.NextOffset)
+	require.Equal(t, "/?offset=20", result.NextURL)
 
 	// privacy all - page 3
 	result, err = repo.List(data.BookmarkListRequest{
-		Privacy: data.BookmarkPrivacyQueryAll,
-		Offset:  20,
+		Privacy:              data.BookmarkPrivacyQueryAll,
+		Offset:               20,
+		PaginationPathPrefix: "/?",
 	})
 	require.NoError(t, err)
 	require.Len(t, result.Items, 5)
@@ -122,7 +126,7 @@ func TestBookmarkRepositoryList(t *testing.T) {
 	require.Equal(t, "Bookmark 24", result.Items[len(result.Items)-1].Title)
 	require.Equal(t, int64(25), result.Count)
 	require.True(t, result.HasPrev)
-	require.Equal(t, 10, result.PrevOffset)
+	require.Equal(t, "/?offset=10", result.PrevURL)
 	require.False(t, result.HasNext)
 
 	// privacy all - order

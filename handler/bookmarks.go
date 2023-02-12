@@ -28,10 +28,12 @@ func BookmarksListHandler(c echo.Context) error {
 		Privacy: privacy,
 		Order:   "created_at desc",
 		Offset:  offset,
+
+		PaginationPathPrefix: "/?",
 	})
 	if err != nil {
 		return sc.Render(http.StatusOK, "bookmarks_list.html", map[string]interface{}{
-			"error": "Failed to fetch bookmarks",
+			"error": "Failed to fetch bookmarks.",
 		})
 	}
 

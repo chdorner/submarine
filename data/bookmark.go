@@ -37,15 +37,17 @@ type BookmarkListRequest struct {
 	TagID   uint
 	Offset  int
 	Order   string
+
+	PaginationPathPrefix string
 }
 
 type BookmarkListResult struct {
-	Items      []Bookmark
-	Count      int64
-	HasPrev    bool
-	PrevOffset int
-	HasNext    bool
-	NextOffset int
+	Items   []Bookmark
+	Count   int64
+	HasPrev bool
+	PrevURL string
+	HasNext bool
+	NextURL string
 }
 
 func (b *Bookmark) IsPublic() bool {

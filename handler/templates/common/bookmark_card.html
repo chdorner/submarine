@@ -1,48 +1,55 @@
 {{ define "bookmark_card" }}
-<div class="bookmark card">
-    <header class="card-header">
-        <p class="card-header-title">
+<div class="uk-comment">
+    <div class="uk-comment-header">
+        <h1 class="uk-comment-title uk-margin-remove">
             <a href="{{ .URL }}" rel="noreferrer noopener" target="_blank">
-                {{ .Title }}
+                {{ or .Title .URL }}
             </a>
-        </p>
-        {{ if .Tags }}
-        <p class="card-header-icon">
+        </h1>
+        <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-vertical">
+            <li>
+                <a href="/bookmarks/{{ .ID }}">
+                    {{ .CreatedAt.Format "_2 Jan 2006" }}
+                    <span uk-icon="icon: {{ if .IsPublic }}world{{ else }}lock{{ end }}; ratio: 0.9" class="uk-margin-small-left"></span>
+                </a>
+            </li>
+            <li><a href="/bookmarks/{{ .ID }}/edit">Edit</a></li>
+            <li><a href="#modal-delete-bookmark-{{ .ID }}" uk-toggle>Delete</a></li>
+        </ul>
+        <ul class="uk-comment-meta uk-subnav uk-margin-small-top">
             {{ range $tag := .Tags }}
-            <span class="tag is-link is-light ml-2"><a href="/tags/{{ $tag.Name }}">{{ $tag.Name }}</a></span>
+            <li>
+                <a href="/tags/{{ $tag.Name }}">
+                    <span class="uk-label">
+                        <span uk-icon="tag"></span>
+                        {{ $tag.Name }}
+                    </span>
+                </a>
+            </li>
             {{ end }}
-        </p>
-        {{ end }}
-    </header>
+        </ul>
+    </div>
     {{ if .Description }}
-    <div class="card-content">
-        <p>{{ .Description }}</p>
+    <div class="uk-comment-body">
+        <p class="uk-text-small uk-text-light">{{ .Description }}</p>
     </div>
     {{ end }}
-    <footer class="card-footer">
-        <a href="/bookmarks/{{ .ID }}" class="card-footer-item">{{ .CreatedAt.Format "_2 Jan 2006" }}</a>
-        {{ if IsAuthenticated }}
-        <a href="/bookmarks/{{ .ID }}/edit" class="card-footer-item">Edit</a>
-        <a class="card-footer-item js-modal-trigger" data-target="modal-delete-bookmark-{{ .ID }}">Delete</a>
-        <div class="modal" id="modal-delete-bookmark-{{ .ID }}">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Delete Bookmark</p>
-                    <button class="delete" aria-label="close"></button>
-                </header>
-                <section class="modal-card-body">
-                    <p>Are you sure you want to delete the bookmark <i>{{ .Title }}</i>?</p>
-                </section>
-                <footer class="modal-card-foot">
-                    <form method="post" action="/bookmarks/{{ .ID }}/delete">
-                        <button type="submit" class="button is-danger">Delete Bookmark</button>
-                        <button class="button" type="reset">Cancel</button>
-                    </form>
-                </footer>
+    <div id="modal-delete-bookmark-{{ .ID }}" uk-modal>
+        <div class="uk-modal-dialog">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Delete Bookmark</h2>
+            </div>
+            <div class="uk-modal-body">
+                <p>Are you sure you want to delete the bookmark <i>{{ .Title }}</i>?</p>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <form method="post" action="/bookmarks/{{ .ID }}/delete">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button class="uk-button uk-button-primary" type="submit">Delete</button>
+                </form>
             </div>
         </div>
-        {{ end }}
-    </footer>
+    </div>
 </div>
 {{ end }}

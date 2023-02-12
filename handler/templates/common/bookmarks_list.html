@@ -1,0 +1,25 @@
+{{ define "bookmarks_list" }}
+{{ if .error }}
+<div class="uk-alert-danger" uk-alert>
+    <p>{{ .error }}</p>
+</div>
+{{ else if not .result.Items }}
+<div uk-alert>
+    <p>No bookmarks yet!</p>
+</div>
+{{ else }}
+<ul class="uk-list uk-list-divider uk-list-large">
+    {{ range $bookmark := .result.Items }}
+    <li>{{ template "bookmark_card" $bookmark }}</li>
+    {{ end }}
+</ul>
+<ul class="uk-pagination">
+    {{ if .result.HasPrev }}
+    <li><a href="{{ .result.PrevURL }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
+    {{ end }}
+    {{ if .result.HasNext }}
+    <li class="uk-margin-auto-left"><a href="{{ .result.NextURL }}">Next <span class="uk-margin-small-left" uk-pagination-next></span></a></li>
+    {{ end }}
+</ul>
+{{ end }}
+{{ end }}
