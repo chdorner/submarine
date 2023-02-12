@@ -70,10 +70,15 @@ func TestBookmarkRepositoryList(t *testing.T) {
 
 	for i := 0; i < 25; i++ {
 		public := i%2 == 0
+		tag := "private"
+		if public {
+			tag = "public"
+		}
 		_, err := repo.Create(data.BookmarkForm{
 			URL:    fmt.Sprintf("https://example-%d.com", i),
 			Title:  fmt.Sprintf("Bookmark %d", i),
 			Public: public,
+			Tags:   tag,
 		})
 		require.NoError(t, err)
 	}
@@ -154,6 +159,21 @@ func TestBookmarkRepositoryList(t *testing.T) {
 	require.Equal(t, int64(13), result.Count)
 	for _, item := range result.Items {
 		require.Equal(t, data.BookmarkPrivacyPublic, item.Privacy)
+	}
+
+	// privacy all, filter tag
+	tagRepo := data.NewTagRepository(db)
+	tag, err := tagRepo.GetByName("public")
+	require.NoError(t, err)
+	result, err = repo.List(data.BookmarkListRequest{
+		Privacy: data.BookmarkPrivacyPublic,
+		TagID:   tag.ID,
+	})
+	require.NoError(t, err)
+	require.Equal(t, int64(13), result.Count)
+	for _, item := range result.Items {
+		require.Len(t, item.Tags, 1)
+		require.Equal(t, tag.ID, item.Tags[0].ID)
 	}
 }
 

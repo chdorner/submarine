@@ -68,6 +68,11 @@ func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult,
 		query = query.Where("privacy = ?", privacy)
 	}
 
+	if req.TagID != 0 {
+		query = query.Joins("inner join bookmark_tags bt on bt.bookmark_id = bookmarks.id").
+			Where("bt.tag_id = ?", req.TagID)
+	}
+
 	if req.Order != "" {
 		query = query.Order(req.Order)
 	}

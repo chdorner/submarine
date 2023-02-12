@@ -8,6 +8,30 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestTagRepositoryGet(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewTagRepository(db)
+
+	expected := data.Tag{Name: "toRead"}
+	result := db.Create(&expected)
+	require.NoError(t, result.Error)
+
+	actual, err := repo.GetByName(expected.Name)
+	require.NoError(t, err)
+	require.Equal(t, expected.ID, actual.ID)
+
+	// not found
+	actual, err = repo.GetByName("missing")
+	require.NoError(t, err)
+	require.Nil(t, actual)
+
+	// empty name
+	actual, err = repo.GetByName("")
+	require.NoError(t, err)
+	require.Nil(t, actual)
+}
+
 func TestTagRepositoryUpsert(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()

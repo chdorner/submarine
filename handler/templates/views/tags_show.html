@@ -1,0 +1,31 @@
+{{ define "content" }}
+<div class="columns is-centered">
+    {{ if .error }}
+    <div class="column is-half">
+        <div class="notification is-danger">
+            {{ .error }}
+        </div>
+    </div>
+    {{ else }}
+    <div class="column is-two-thirds content">
+        <h1>
+            Bookmarks tagged
+            <span class="tag is-link is-light is-large">{{ .tag.Name }}</span>
+        </h1>
+        {{ if not .result.Items }}
+        <div class="notification is-warning">
+            No bookmarks yet!
+        </div>
+        {{ else }}
+        {{ range $bookmark := .result.Items }}
+        {{ template "bookmark_card" $bookmark }}
+        {{ end }}
+        <nav class="pagination is-centered" role="navigation" aria-label="navigation">
+            <a class="button pagination-previous" {{ if .result.HasPrev }}href="/tags/{{ .tag.Name }}?offset={{ .result.PrevOffset }}"{{ end }} {{ if not .result.HasPrev }}disabled{{ end }}>Previous</a>
+            <a class="button pagination-next" {{ if .result.HasNext }}href="/tags/{{ .tag.Name }}?offset={{ .result.NextOffset }}"{{ end }} {{ if not .result.HasNext }}disabled{{ end }}>Next Page</a>
+        </nav>
+        {{ end }}
+    </div>
+    {{ end }}
+</div>
+{{ end }}

@@ -34,6 +34,7 @@ type BookmarkForm struct {
 
 type BookmarkListRequest struct {
 	Privacy BookmarkPrivacy
+	TagID   uint
 	Offset  int
 	Order   string
 }
