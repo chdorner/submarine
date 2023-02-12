@@ -60,7 +60,6 @@ func New(db *gorm.DB) *echo.Echo {
 	e.POST("/bookmarks", handler.BookmarksCreateHandler)
 
 	e.GET("/tags/:name", handler.TagHandler)
-	e.GET("/tags", handler.TagsListHandler)
 
 	e.GET("/settings", handler.SettingsHandler)
 

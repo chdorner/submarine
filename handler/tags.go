@@ -9,11 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func TagsListHandler(c echo.Context) error {
-	sc := c.(*middleware.SubmarineContext)
-	return sc.Render(http.StatusOK, "tags_list.html", map[string]interface{}{})
-}
-
 func TagHandler(c echo.Context) error {
 	sc := c.(*middleware.SubmarineContext)
 	repo := data.NewTagRepository(sc.DB)
