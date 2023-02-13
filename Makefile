@@ -26,6 +26,11 @@ install-tools: # Install development tools
 lint: # Lint source code
 	golangci-lint run
 
-.POHNY: serve
+.PHONY: serve
 serve: # Build and serve submarine
 	air -- serve
+
+.PHONY: compile-styles
+compile-styles: # Build CSS file
+	yarn install
+	yarn run sass --no-source-map --style compressed scss/submarine.scss handler/static/submarine.min.css
