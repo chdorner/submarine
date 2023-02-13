@@ -32,6 +32,7 @@ func TagHandler(c echo.Context) error {
 	result, err := bookmarksRepo.List(data.BookmarkListRequest{
 		Privacy: privacy,
 		TagID:   tag.ID,
+		Order:   "created_at desc",
 		Offset:  offset,
 
 		PaginationPathPrefix: fmt.Sprintf("/tags/%s?", tag.Name),
