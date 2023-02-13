@@ -16,11 +16,11 @@
             <li><a href="/bookmarks/{{ .ID }}/edit">Edit</a></li>
             <li><a href="#modal-delete-bookmark-{{ .ID }}" uk-toggle>Delete</a></li>
         </ul>
-        <ul class="uk-comment-meta uk-subnav uk-margin-small-top">
+        <ul class="uk-comment-meta uk-subnav uk-margin-remove-top">
             {{ range $tag := .Tags }}
             <li>
                 <a href="/tags/{{ $tag.Name }}">
-                    <span class="uk-label">
+                    <span class="uk-label uk-text-capitalize uk-margin-small-top">
                         <span uk-icon="tag"></span>
                         {{ $tag.Name }}
                     </span>
