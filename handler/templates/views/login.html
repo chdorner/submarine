@@ -1,6 +1,8 @@
 {{ define "content"}}
 <div class="uk-card uk-card-default uk-width-1-3@s uk-align-center">
     <form action="/login" method="post" class="uk-form-stacked">
+        {{ CSRFHiddenInput }}
+
         <div class="uk-card-body">
             {{ if .error }}
             <div class="uk-alert-danger" uk-alert>

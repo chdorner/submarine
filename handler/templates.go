@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 var (
@@ -47,6 +48,15 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 			}
 			return IsAuthenticated.(bool)
 		},
+		"CSRFHiddenInput": func() template.HTML {
+			token := c.Get(echomiddleware.DefaultCSRFConfig.ContextKey)
+			if token == nil {
+				return ""
+			}
+			return template.HTML(
+				fmt.Sprintf(`<input type="hidden" name="_csrf" value="%s">`, token),
+			)
+		},
 	}
 
 	dataMap := map[string]interface{}{}
@@ -62,13 +72,16 @@ func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Co
 func (t *Templates) Parse(views, common fs.ReadDirFS) error {
 	t.Registry = make(map[string]*template.Template)
 
+	// empty functions need to be overwritten when executing templates
 	funcMap := template.FuncMap{
 		"StaticAssetPath": func(name string) template.HTML {
 			return template.HTML(StaticAssetPath(name))
 		},
 		"IsAuthenticated": func() bool {
-			// this function will be overwritten when executing templates
 			return false
+		},
+		"CSRFHiddenInput": func() template.HTML {
+			return template.HTML("")
 		},
 	}
 
