@@ -44,7 +44,8 @@ func NewBaseApp(db *gorm.DB) *echo.Echo {
 		},
 	}))
 	e.Use(echomiddleware.CSRFWithConfig(echomiddleware.CSRFConfig{
-		TokenLookup: "form:_csrf",
+		TokenLookup:    "form:_csrf",
+		CookieSameSite: http.SameSiteLaxMode,
 	}))
 	e.Use(middleware.CookieAuthMiddleware)
 
