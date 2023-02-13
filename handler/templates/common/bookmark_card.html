@@ -13,8 +13,10 @@
                     <span uk-icon="icon: {{ if .IsPublic }}world{{ else }}lock{{ end }}; ratio: 0.9" class="uk-margin-small-left"></span>
                 </a>
             </li>
+            {{ if IsAuthenticated }}
             <li><a href="/bookmarks/{{ .ID }}/edit">Edit</a></li>
             <li><a href="#modal-delete-bookmark-{{ .ID }}" uk-toggle>Delete</a></li>
+            {{ end }}
         </ul>
         <ul class="uk-comment-meta uk-subnav uk-margin-remove-top">
             {{ range $tag := .Tags }}
