@@ -63,6 +63,7 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 					"sessions",
 					"bookmarks",
 					"tags",
+					"bookmark_tags",
 				)
 			},
 		},
