@@ -8,3 +8,7 @@ $offcanvas-bar-color-mode: dark;
 @import "../node_modules/uikit/src/scss/variables-theme.scss";
 @import "../node_modules/uikit/src/scss/mixins-theme.scss";
 @import "../node_modules/uikit/src/scss/uikit-theme.scss";
+
+.tag {
+    text-transform: none;
+}

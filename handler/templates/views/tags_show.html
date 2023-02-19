@@ -1,10 +1,7 @@
 {{ define "content" }}
 <h1>
     Bookmarks tagged
-    <span class="uk-label">
-        <span uk-icon="tag"></span>
-        {{ .tag.Name }}
-    </span>
+    {{ template "tag" .tag }}
 </h1>
 
 {{ template "bookmarks_list" . }}

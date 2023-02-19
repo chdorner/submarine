@@ -20,14 +20,7 @@
         </ul>
         <ul class="uk-comment-meta uk-subnav uk-margin-remove-top">
             {{ range $tag := .Tags }}
-            <li>
-                <a href="/tags/{{ $tag.Name }}">
-                    <span class="uk-label uk-text-capitalize uk-margin-small-top">
-                        <span uk-icon="tag"></span>
-                        {{ $tag.Name }}
-                    </span>
-                </a>
-            </li>
+            <li>{{ template "tag" $tag }}</li>
             {{ end }}
         </ul>
     </div>
