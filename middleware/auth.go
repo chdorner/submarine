@@ -16,7 +16,7 @@ func CookieAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if token != "" {
 			repo := data.NewSessionRepository(sc.DB)
 			session, err := repo.GetByToken(token)
-			if err == nil {
+			if err == nil && session != nil {
 				sc.Set("SessionID", session.ID)
 				sc.Set("IsAuthenticated", true)
 			}
