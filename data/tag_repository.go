@@ -1,6 +1,10 @@
 package data
 
-import "gorm.io/gorm"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type TagRepository struct {
 	db *gorm.DB
@@ -16,7 +20,7 @@ func (r *TagRepository) GetByName(name string) (*Tag, error) {
 	}
 
 	var tag Tag
-	result := r.db.Where("name = ? COLLATE NOCASE", name).First(&tag)
+	result := r.db.Where("name = ?", strings.ToLower(name)).First(&tag)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -32,11 +36,11 @@ func (r *TagRepository) Upsert(tagNames []string) ([]Tag, error) {
 
 	for _, name := range tagNames {
 		var tag Tag
-		result := r.db.Where("name = ? COLLATE NOCASE", name).First(&tag)
+		result := r.db.Where("name = ?", strings.ToLower(name)).First(&tag)
 		if result.RowsAffected > 0 {
 			tags = append(tags, tag)
 		} else {
-			tag = Tag{Name: name}
+			tag = Tag{DisplayName: name}
 			created := r.db.Create(&tag)
 			if created.Error != nil {
 				return nil, created.Error

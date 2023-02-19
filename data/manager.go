@@ -1,6 +1,8 @@
 package data
 
 import (
+	"strings"
+
 	"github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -65,6 +67,50 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 					"tags",
 					"bookmark_tags",
 				)
+			},
+		},
+		{
+			ID: "202302191830",
+			Migrate: func(tx *gorm.DB) error {
+				type Tag struct {
+					gorm.Model
+					Name        string `gorm:"unique;not null;default:null;"`
+					DisplayName string
+
+					Bookmarks []Bookmark `gorm:"many2many:bookmark_tags;"`
+				}
+				err := tx.AutoMigrate(&Tag{})
+				if err != nil {
+					return err
+				}
+
+				var tags []Tag
+				tx.Find(&tags)
+				for _, tag := range tags {
+					tag.DisplayName = tag.Name
+					tag.Name = strings.ToLower(tag.Name)
+					tx.Save(tag)
+				}
+
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				type Tag struct {
+					gorm.Model
+					Name        string `gorm:"unique;not null;default:null;"`
+					DisplayName string
+
+					Bookmarks []Bookmark `gorm:"many2many:bookmark_tags;"`
+				}
+
+				var tags []Tag
+				tx.Find(&tags)
+				for _, tag := range tags {
+					tag.Name = tag.DisplayName
+					tx.Save(tag)
+				}
+
+				return tx.Migrator().DropColumn(&Tag{}, "DisplayName")
 			},
 		},
 	})

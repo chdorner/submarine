@@ -59,8 +59,8 @@ func TestBookmarksCreateHandler(t *testing.T) {
 
 	require.Equal(t, form.Get("url"), bookmark.URL)
 	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
-	require.Equal(t, "articles", bookmark.Tags[0].Name)
-	require.Equal(t, "toRead", bookmark.Tags[1].Name)
+	require.Equal(t, "articles", bookmark.Tags[0].DisplayName)
+	require.Equal(t, "toRead", bookmark.Tags[1].DisplayName)
 
 	// private bookmark (missing public in form values)
 	form = url.Values{}
@@ -420,8 +420,8 @@ func TestBookmarkEditHandler(t *testing.T) {
 	require.Equal(t, form.Get("description"), actual.Description)
 	require.Equal(t, data.BookmarkPrivacyPublic, actual.Privacy)
 	require.Len(t, actual.Tags, 2)
-	require.Equal(t, "articles", actual.Tags[0].Name)
-	require.Equal(t, "recommended", actual.Tags[1].Name)
+	require.Equal(t, "articles", actual.Tags[0].DisplayName)
+	require.Equal(t, "recommended", actual.Tags[1].DisplayName)
 
 	// validation error
 	form = url.Values{}

@@ -13,7 +13,7 @@ func TestTagRepositoryGet(t *testing.T) {
 	defer cleanup()
 	repo := data.NewTagRepository(db)
 
-	expected := data.Tag{Name: "toRead"}
+	expected := data.Tag{DisplayName: "toRead"}
 	result := db.Create(&expected)
 	require.NoError(t, result.Error)
 
@@ -50,8 +50,8 @@ func TestTagRepositoryUpsert(t *testing.T) {
 	require.Equal(t, int64(0), count)
 	tags, err := repo.Upsert(tagNames)
 	require.NoError(t, err)
-	require.Equal(t, "toRead", tags[0].Name)
-	require.Equal(t, "articles", tags[1].Name)
+	require.Equal(t, "toRead", tags[0].DisplayName)
+	require.Equal(t, "articles", tags[1].DisplayName)
 	db.Model(&data.Tag{}).Count(&count)
 	require.Equal(t, int64(2), count)
 
@@ -62,17 +62,17 @@ func TestTagRepositoryUpsert(t *testing.T) {
 	require.NoError(t, err)
 	db.Model(&data.Tag{}).Count(&count)
 	require.Equal(t, int64(3), count)
-	require.Equal(t, "articles", tags[0].Name)
-	require.Equal(t, "recommended", tags[1].Name)
+	require.Equal(t, "articles", tags[0].DisplayName)
+	require.Equal(t, "recommended", tags[1].DisplayName)
 
 	// skips creating when only difference is case
-	db.Model(&data.Tag{}).Where("name = ?", "toRead").Count(&count)
+	db.Model(&data.Tag{}).Where("display_name = ?", "toRead").Count(&count)
 	require.Equal(t, int64(1), count)
-	db.Model(&data.Tag{}).Where("name = ?", "TOREAD").Count(&count)
+	db.Model(&data.Tag{}).Where("display_name = ?", "TOREAD").Count(&count)
 	require.Equal(t, int64(0), count)
 	tags, err = repo.Upsert([]string{"TOREAD"})
 	require.NoError(t, err)
-	require.Equal(t, "toRead", tags[0].Name)
-	db.Model(&data.Tag{}).Where("name = ?", "TOREAD").Count(&count)
+	require.Equal(t, "toRead", tags[0].DisplayName)
+	db.Model(&data.Tag{}).Where("display_name = ?", "TOREAD").Count(&count)
 	require.Equal(t, int64(0), count)
 }

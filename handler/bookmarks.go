@@ -156,7 +156,7 @@ func BookmarkEditViewHandler(c echo.Context) error {
 
 	tagNames := []string{}
 	for _, tag := range bookmark.Tags {
-		tagNames = append(tagNames, tag.Name)
+		tagNames = append(tagNames, tag.DisplayName)
 	}
 	form := data.BookmarkForm{
 		URL:         bookmark.URL,

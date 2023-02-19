@@ -48,7 +48,7 @@ func TestBookmarkRepositoryCreate(t *testing.T) {
 	require.Equal(t, data.BookmarkPrivacyPublic, bookmark.Privacy)
 	tagNames := []string{}
 	for _, tag := range bookmark.Tags {
-		tagNames = append(tagNames, tag.Name)
+		tagNames = append(tagNames, tag.DisplayName)
 	}
 	require.Equal(t, []string{"to-read", "articles"}, tagNames)
 
@@ -233,9 +233,9 @@ func TestBookmarkRepositoryUpdate(t *testing.T) {
 	require.Equal(t, expected.Description, actual.Description)
 	require.False(t, actual.IsPublic())
 	require.Len(t, actual.Tags, 3)
-	require.Equal(t, "articles", actual.Tags[0].Name)
-	require.Equal(t, "recommended", actual.Tags[1].Name)
-	require.Equal(t, "top10", actual.Tags[2].Name)
+	require.Equal(t, "articles", actual.Tags[0].DisplayName)
+	require.Equal(t, "recommended", actual.Tags[1].DisplayName)
+	require.Equal(t, "top10", actual.Tags[2].DisplayName)
 
 	// update not found
 	err = repo.Update(uint(42), expected)
