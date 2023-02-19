@@ -76,3 +76,32 @@ func TestTagRepositoryUpsert(t *testing.T) {
 	db.Model(&data.Tag{}).Where("display_name = ?", "TOREAD").Count(&count)
 	require.Equal(t, int64(0), count)
 }
+
+func TestTagRepositorySearch(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewTagRepository(db)
+
+	tagNames := []string{"golang", "gomigrate", "toRead"}
+	_, err := repo.Upsert(tagNames)
+	require.NoError(t, err)
+
+	results, err := repo.Search("go")
+	require.NoError(t, err)
+	require.Len(t, results, 0)
+
+	results, err = repo.Search("go*")
+	require.NoError(t, err)
+	require.Len(t, results, 2)
+	var resultNames []string
+	for _, tag := range results {
+		resultNames = append(resultNames, tag.DisplayName)
+	}
+	require.Contains(t, resultNames, "golang")
+	require.Contains(t, resultNames, "gomigrate")
+
+	results, err = repo.Search("toread")
+	require.NoError(t, err)
+	require.Len(t, results, 1)
+	require.Equal(t, "toRead", results[0].DisplayName)
+}

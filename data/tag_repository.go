@@ -51,3 +51,12 @@ func (r *TagRepository) Upsert(tagNames []string) ([]Tag, error) {
 
 	return tags, nil
 }
+
+func (r *TagRepository) Search(query string) ([]Tag, error) {
+	var tags []Tag
+	err := r.db.Table("tags_fts").Unscoped().Where("tags_fts MATCH ?", query).Order("rank").Find(&tags).Error
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
+}

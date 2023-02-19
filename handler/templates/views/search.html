@@ -1,0 +1,32 @@
+{{ define "content" }}
+<h1>Search Bookmarks</h1>
+<form action="/search" method="get" class="uk-form">
+    <div>
+        <input class="uk-input uk-form-width-large" type="search" name="q" value="{{ .query }}" placeholder="search query">
+        <button class="uk-button uk-button-primary" type="submit">Search</button>
+    </div>
+</form>
+
+{{ if .tags }}
+<div class="uk-margin-top">
+    <span class="uk-text-lead">Matching Tags</span>
+    <hr>
+    <ul class="uk-list uk-flex">
+        {{ range $tag := .tags }}
+        <li class="uk-margin-remove-top">
+            <div class="uk-margin-small-right">
+                {{ template "tag" $tag }}
+            </div>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+{{ end }}
+
+{{ if .bookmarks }}
+<div class="uk-margin-top">
+    <span class="uk-text-lead">Matching Bookmarks</span>
+    <hr>
+</div>
+{{ end }}
+{{ end }}

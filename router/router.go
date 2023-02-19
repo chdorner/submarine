@@ -65,6 +65,8 @@ func New(db *gorm.DB) *echo.Echo {
 
 	e.GET("/tags/:name", handler.TagHandler)
 
+	e.GET("/search", handler.SearchHandler)
+
 	e.GET("/settings", handler.SettingsHandler)
 
 	e.GET("/login", handler.LoginViewHandler)

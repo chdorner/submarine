@@ -118,5 +118,61 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 				return tx.Migrator().DropColumn(&Tag{}, "DisplayName")
 			},
 		},
+		{
+			ID: "202302192200",
+			Migrate: func(tx *gorm.DB) error {
+				err := tx.Exec(`CREATE VIRTUAL TABLE tags_fts USING fts5(
+					display_name,
+					content="tags",
+					content_rowid="id"
+				);`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER tags_ai AFTER INSERT ON tags BEGIN
+					INSERT INTO tags_fts(rowid, display_name) VALUES (new.id, new.display_name);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER tags_ad AFTER DELETE ON tags BEGIN
+					INSERT INTO tags_fts(tags_fts, rowid, display_name) VALUES('delete', old.id, old.display_name);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER tags_au AFTER UPDATE ON tags BEGIN
+					INSERT INTO tags_fts(tags_fts, rowid, display_name) VALUES('delete', old.id, old.display_name);
+					INSERT INTO tags_fts(rowid, display_name) VALUES (new.id, new.display_name);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				return tx.Exec(`INSERT INTO tags_fts(rowid, display_name) SELECT id, display_name from tags;`).Error
+			},
+			Rollback: func(tx *gorm.DB) error {
+				err := tx.Exec("DROP TABLE tags_fts;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER tags_ai;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER tags_ad;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER tags_au;").Error
+				return err
+			},
+		},
 	})
 }
