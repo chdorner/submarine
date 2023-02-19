@@ -3,8 +3,8 @@ package data
 import (
 	"strings"
 
+	"github.com/glebarez/sqlite"
 	"github.com/go-gormigrate/gormigrate/v2"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
