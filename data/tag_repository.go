@@ -16,7 +16,7 @@ func (r *TagRepository) GetByName(name string) (*Tag, error) {
 	}
 
 	var tag Tag
-	result := r.db.Where("name = ?", name).First(&tag)
+	result := r.db.Where("name = ? COLLATE NOCASE", name).First(&tag)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
@@ -32,7 +32,7 @@ func (r *TagRepository) Upsert(tagNames []string) ([]Tag, error) {
 
 	for _, name := range tagNames {
 		var tag Tag
-		result := r.db.Where("name = ?", name).First(&tag)
+		result := r.db.Where("name = ? COLLATE NOCASE", name).First(&tag)
 		if result.RowsAffected > 0 {
 			tags = append(tags, tag)
 		} else {
