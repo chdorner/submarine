@@ -22,7 +22,12 @@ func Migrate(db *gorm.DB) {
 }
 
 func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
-	return gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
+	return gormigrate.New(db, &gormigrate.Options{
+		TableName:      "migrations",
+		IDColumnName:   "id",
+		IDColumnSize:   255,
+		UseTransaction: true,
+	}, []*gormigrate.Migration{
 		// initial migration
 		{
 			ID: "202302191130",
