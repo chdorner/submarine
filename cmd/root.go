@@ -29,6 +29,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("db", "d", "submarine.db", "path to sqlite database")
 
 	rootCmd.AddCommand(NewServeCmd())
+	rootCmd.AddCommand(NewDBCmd())
 	rootCmd.AddCommand(NewInitCmd())
 	rootCmd.AddCommand(NewVersionCommand())
 }
@@ -45,12 +46,16 @@ func configureLogging(ctx context.Context) {
 	}
 }
 
-func initDBConn(flags *pflag.FlagSet) *gorm.DB {
+func initDBConn(flags *pflag.FlagSet, migrate bool) *gorm.DB {
 	path, _ := flags.GetString("db")
 	db, err := data.Connect(path)
 	if err != nil {
 		panic(err)
 	}
-	data.Migrate(db)
+
+	if migrate {
+		data.Migrate(db)
+	}
+
 	return db
 }

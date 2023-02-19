@@ -19,7 +19,7 @@ func NewInitCmd() *cobra.Command {
 			ctx := createContext(cmd.Flags())
 			configureLogging(ctx)
 
-			db = initDBConn(cmd.Flags())
+			db = initDBConn(cmd.Flags(), true)
 			password, _ = cmd.Flags().GetString("password")
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

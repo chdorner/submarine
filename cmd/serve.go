@@ -22,7 +22,7 @@ func NewServeCmd() *cobra.Command {
 			ctx := createContext(cmd.Flags())
 			configureLogging(ctx)
 
-			db = initDBConn(cmd.Flags())
+			db = initDBConn(cmd.Flags(), false)
 			addr, _ = cmd.Flags().GetString("addr")
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
