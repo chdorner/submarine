@@ -1,6 +1,6 @@
 module github.com/chdorner/submarine
 
-go 1.19
+go 1.20
 
 require (
 	github.com/glebarez/sqlite v1.7.0
