@@ -10,8 +10,8 @@
 {{ if .tags }}
 <div class="uk-margin-top">
     <span class="uk-text-lead">Matching Tags</span>
-    <hr>
-    <ul class="uk-list uk-flex">
+    <hr class="uk-margin-small">
+    <ul class="uk-list uk-flex uk-margin-remove-top uk-margin-medium-bottom">
         {{ range $tag := .tags }}
         <li class="uk-margin-remove-top">
             <div class="uk-margin-small-right">
@@ -26,7 +26,7 @@
 {{ if .hasResults }}
 <div class="uk-margin-top">
     <span class="uk-text-lead">Matching Bookmarks</span>
-    <hr>
+    <hr class="uk-margin-small">
     {{ template "bookmarks_list" . }}
 </div>
 {{ end }}
