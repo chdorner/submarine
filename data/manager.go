@@ -119,7 +119,7 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 			},
 		},
 		{
-			ID: "202302192200",
+			ID: "202302251200",
 			Migrate: func(tx *gorm.DB) error {
 				err := tx.Exec(`CREATE VIRTUAL TABLE tags_fts USING fts5(
 					display_name,
@@ -152,7 +152,45 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 					return err
 				}
 
-				return tx.Exec(`INSERT INTO tags_fts(rowid, display_name) SELECT id, display_name from tags;`).Error
+				err = tx.Exec(`INSERT INTO tags_fts(rowid, display_name) SELECT id, display_name from tags;`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE VIRTUAL TABLE bookmarks_fts USING fts5(
+					url,
+					title,
+					description,
+					content="bookmarks",
+					content_rowid="id"
+				);`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER bookmarks_ai AFTER INSERT ON bookmarks BEGIN
+					INSERT INTO bookmarks_fts(rowid, url, title, description) VALUES (new.id, new.url, new.title, new.description);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER bookmarks_ad AFTER DELETE ON bookmarks BEGIN
+					INSERT INTO bookmarks_fts(bookmarks_fts, rowid, url, title, description) VALUES('delete', old.id, old.url, old.title, old.description);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec(`CREATE TRIGGER bookmarks_au AFTER UPDATE ON bookmarks BEGIN
+					INSERT INTO bookmarks_fts(bookmarks_fts, rowid, url, title, description) VALUES('delete', old.id, old.url, old.title, old.description);
+					INSERT INTO bookmarks_fts(rowid, url, title, description) VALUES (new.id, new.url, new.title, new.description);
+				END;`).Error
+				if err != nil {
+					return err
+				}
+
+				return tx.Exec(`INSERT INTO bookmarks_fts(rowid, url, title, description) SELECT id, url, title, description from bookmarks;`).Error
 			},
 			Rollback: func(tx *gorm.DB) error {
 				err := tx.Exec("DROP TABLE tags_fts;").Error
@@ -171,6 +209,26 @@ func NewMigrator(db *gorm.DB) *gormigrate.Gormigrate {
 				}
 
 				err = tx.Exec("DROP TRIGGER tags_au;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TABLE bookmarks_fts;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER bookmarks_ai;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER bookmarks_ad;").Error
+				if err != nil {
+					return err
+				}
+
+				err = tx.Exec("DROP TRIGGER bookmarks_au;").Error
 				return err
 			},
 		},

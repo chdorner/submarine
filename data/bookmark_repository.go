@@ -103,6 +103,40 @@ func (r *BookmarkRepository) List(req BookmarkListRequest) (*BookmarkListResult,
 	}, nil
 }
 
+func (r *BookmarkRepository) Search(req BookmarkSearchRequest) (*BookmarkSearchResponse, error) {
+	var bookmarks []Bookmark
+
+	limit := 10
+	query := r.db.Model(&Bookmark{}).Preload("Tags").
+		Joins("JOIN bookmarks_fts on bookmarks_fts.rowid = bookmarks.id").
+		Where("bookmarks_fts MATCH ?", req.Query).
+		Order("bookmarks_fts.rank")
+
+	var count int64
+	err := query.Count(&count).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = query.Offset(req.Offset).
+		Limit(limit).
+		Find(&bookmarks).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &BookmarkSearchResponse{
+		Items:   bookmarks,
+		Count:   count,
+		HasPrev: req.Offset > 0,
+		PrevURL: fmt.Sprintf("%soffset=%d", req.PaginationPathPrefix, req.Offset-limit),
+		HasNext: int64(req.Offset+limit) < count,
+		NextURL: fmt.Sprintf("%soffset=%d", req.PaginationPathPrefix, req.Offset+limit),
+	}, nil
+}
+
 func (r *BookmarkRepository) Delete(id uint) error {
 	result := r.db.Delete(&Bookmark{}, id)
 	if result.RowsAffected == 0 {

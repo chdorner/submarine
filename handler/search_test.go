@@ -22,7 +22,7 @@ func TestSearchHandler(t *testing.T) {
 	_, err := repo.Create(data.BookmarkForm{
 		URL:   "https://en.wikipedia.org",
 		Title: "Wikipedia",
-		Tags:  "toRead",
+		Tags:  "toRead, wikipedia",
 	})
 	require.NoError(t, err)
 	_, err = repo.Create(data.BookmarkForm{
@@ -33,7 +33,7 @@ func TestSearchHandler(t *testing.T) {
 
 	e := router.NewBaseApp(db)
 
-	// tag search
+	// tag results
 	q := make(url.Values)
 	q.Set("q", "toread")
 	req := httptest.NewRequest(http.MethodGet, "/search?"+q.Encode(), nil)
@@ -44,6 +44,32 @@ func TestSearchHandler(t *testing.T) {
 	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
 	require.Contains(t, rec.Body.String(), "Matching Tags")
 	require.Contains(t, rec.Body.String(), "toRead")
+	require.NotContains(t, rec.Body.String(), "Matching Bookmarks")
+
+	// bookmark results
+	q = make(url.Values)
+	q.Set("q", "example")
+	req = httptest.NewRequest(http.MethodGet, "/search?"+q.Encode(), nil)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	err = handler.SearchHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	require.Contains(t, rec.Body.String(), "Matching Bookmarks")
+	require.Contains(t, rec.Body.String(), "Example")
+	require.NotContains(t, rec.Body.String(), "Matching Tags")
+
+	// combined results
+	q = make(url.Values)
+	q.Set("q", "wikipedia")
+	req = httptest.NewRequest(http.MethodGet, "/search?"+q.Encode(), nil)
+	rec = httptest.NewRecorder()
+	sc = test.NewAuthenticatedContext(e.NewContext(req, rec), db)
+	err = handler.SearchHandler(sc)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	require.Contains(t, rec.Body.String(), "Matching Tags")
+	require.Contains(t, rec.Body.String(), "Matching Bookmarks")
 
 	// unauthenticated
 	req = httptest.NewRequest(http.MethodGet, "/search", nil)

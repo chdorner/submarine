@@ -23,10 +23,11 @@
 </div>
 {{ end }}
 
-{{ if .bookmarks }}
+{{ if .hasResults }}
 <div class="uk-margin-top">
     <span class="uk-text-lead">Matching Bookmarks</span>
     <hr>
+    {{ template "bookmarks_list" . }}
 </div>
 {{ end }}
 {{ end }}

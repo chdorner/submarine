@@ -181,6 +181,70 @@ func TestBookmarkRepositoryList(t *testing.T) {
 	}
 }
 
+func TestBookmarkRepositorySearch(t *testing.T) {
+	db, cleanup := test.InitTestDB(t)
+	defer cleanup()
+	repo := data.NewBookmarkRepository(db)
+
+	for i := 0; i < 25; i++ {
+		_, err := repo.Create(data.BookmarkForm{
+			URL:         fmt.Sprintf("https://example-%d.com", i),
+			Title:       fmt.Sprintf("Bookmark %d", i),
+			Description: fmt.Sprintf("Bookmark Description %d", i),
+		})
+		require.NoError(t, err)
+	}
+	_, err := repo.Create((data.BookmarkForm{
+		URL:         "https://other.org",
+		Title:       "Other",
+		Description: "Other Description",
+	}))
+	require.NoError(t, err)
+
+	// search bookmark
+	result, err := repo.Search(data.BookmarkSearchRequest{Query: "bookmark"})
+	require.NoError(t, err)
+	require.Len(t, result.Items, 10)
+	require.Equal(t, int64(25), result.Count)
+	require.True(t, result.HasNext)
+	require.Equal(t, "offset=10", result.NextURL)
+	require.False(t, result.HasPrev)
+
+	// search description
+	result, err = repo.Search(data.BookmarkSearchRequest{Query: "description"})
+	require.NoError(t, err)
+	require.Equal(t, int64(26), result.Count)
+
+	// search second page
+	result, err = repo.Search(data.BookmarkSearchRequest{
+		Query:  "bookmark",
+		Offset: 10,
+	})
+	require.NoError(t, err)
+	require.Len(t, result.Items, 10)
+	require.True(t, result.HasNext)
+	require.Equal(t, "offset=20", result.NextURL)
+	require.True(t, result.HasPrev)
+	require.Equal(t, "offset=0", result.PrevURL)
+
+	// search third page
+	result, err = repo.Search(data.BookmarkSearchRequest{
+		Query:  "bookmark",
+		Offset: 20,
+	})
+	require.NoError(t, err)
+	require.Len(t, result.Items, 5)
+	require.False(t, result.HasNext)
+	require.True(t, result.HasPrev)
+	require.Equal(t, "offset=10", result.PrevURL)
+
+	// search no result
+	result, err = repo.Search(data.BookmarkSearchRequest{Query: "nothing"})
+	require.NoError(t, err)
+	require.Len(t, result.Items, 0)
+	require.Equal(t, int64(0), result.Count)
+}
+
 func TestBookmarkRepositoryDelete(t *testing.T) {
 	db, cleanup := test.InitTestDB(t)
 	defer cleanup()

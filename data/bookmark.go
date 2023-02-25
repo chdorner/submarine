@@ -50,6 +50,22 @@ type BookmarkListResult struct {
 	NextURL string
 }
 
+type BookmarkSearchRequest struct {
+	Query  string
+	Offset int
+
+	PaginationPathPrefix string
+}
+
+type BookmarkSearchResponse struct {
+	Items   []Bookmark
+	Count   int64
+	HasPrev bool
+	PrevURL string
+	HasNext bool
+	NextURL string
+}
+
 func (b *Bookmark) IsPublic() bool {
 	return b.Privacy == BookmarkPrivacyPublic
 }
