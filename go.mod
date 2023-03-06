@@ -12,7 +12,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.7.0
-	gorm.io/gorm v1.24.5
+	gorm.io/gorm v1.24.6
 )
 
 require (
